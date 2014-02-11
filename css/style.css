@@ -1,0 +1,42 @@
+body{
+}
+hr{
+	border:1px dashed black;
+}
+
+div.header {
+	padding:3pt;
+}
+div.header .folder a{
+	color:black;
+	text-decoration:underline;
+}
+div.header .folder_sel a{
+	color:orange;
+	font-weight:bold;
+}
+
+div.main a:link    { color:green; }
+div.main a:active  { color:green; }
+div.main a:hover   { color:green; }
+div.main a:visited { color:gray; }
+
+div.main span.page_sel a:visited{
+	color:orange;
+	font-weight:bold;
+}
+
+table#mail_list { width:80%; margin:auto;}
+table#mail_list th{ background:#ddd; }
+table#mail_list .pages{ text-align:right; font-size:small;}
+table#mail_list .num { font-weight:bold; }
+table#mail_list .time{ font-size:small; }
+table#mail_list .from{ font-size:small; }
+
+div.footer{
+	text-align:right;
+	font-size:small;
+	margin:2pt;
+	padding:2pt;
+}
+
