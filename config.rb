@@ -9,7 +9,7 @@ module Config
   LOGFILE = "log.txt"
   MAIL_DIR = "./mail"
   SPAM_FILTER = ""
-  FOLDERS = [ "test", "admin" ]
+  FOLDERS = [ "test", "admin", "info" ]
   CGI_TITLE = "mail2www"
   CGI_NAME = "" # index.cgi
 

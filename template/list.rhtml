@@ -25,11 +25,11 @@
       <table id="mail_list">
         <tr><td colspan="4" class="pages">
             page
-            <% (1..pages).each do |i| %>
-              <% if i == page+1 %>
+            <% (0...pages).each do |i| %>
+              <% if i == page %>
                 <span class="page_sel"><%= cgi_link("[#{i}]", {'f'=>folder, 'p'=>i}) %></span>
               <% else %>
-                <span class="page"><%=     cgi_link( i.to_s,  {'f'=>folder, 'p'=>i}) %></span>
+                <span class="page"><%= cgi_link( i.to_s,  {'f'=>folder, 'p'=>i}) %></span>
               <% end %>
             <% end %>
         </td></tr>
