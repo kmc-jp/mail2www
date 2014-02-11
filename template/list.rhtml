@@ -34,7 +34,7 @@
             <% end %>
         </td></tr>
         <tr><th>time</th><th>no</th><th>from</th><th>subject</th></tr>
-        <% files.reverse.each do |num, from, time, subject| %>
+        <% mails.reverse.each do |num, from, time, subject| %>
           <tr>
             <td class="time"><%=h time%></td>
             <td class="num" ><a href='<%=h CGI_NAME%>?f=<%=u folder%>&m=<%=u num%>'><%=h num%></a></td>
