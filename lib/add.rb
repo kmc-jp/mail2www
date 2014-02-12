@@ -14,7 +14,7 @@ if UNDER_MAINTENANCE
   exit
 end
 
-$:.unshift(File.dirname(__FILE__).untaint)
+$:.unshift(File.dirname(__FILE__))
 require 'mails'
 
 begin
