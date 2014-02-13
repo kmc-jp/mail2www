@@ -36,9 +36,7 @@ module Utils
     end
   end
 
-  def cgi_link(str, options)
-    "<a href='#{h Config::CGI_NAME}?" +
-      options.map{|key, val| "#{u key.to_s}=#{u val.to_s}"}.join('&') +
-      "'>" + (h str) + "</a>"
+  def cgi_link(query)
+    "#{h(Config::CGI_NAME)}?#{build_query(query)}"
   end
 end

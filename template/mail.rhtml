@@ -10,10 +10,11 @@
 
     <div class='header'>
       <% FOLDERS.each do |f| %>
+        <% query = {:f => u(f)} %>
         <% if f == folder %>
-          <span class='folder_sel'><a href='<%=h CGI_NAME%>?f=<%=u f%>'>[<%=h f%>]</a></span>
+          <span class='folder_sel'><a href='<%=cgi_link(query)%>'>[<%=h f%>]</a></span>
         <% else %>
-          <span class='folder'><a href='<%=h CGI_NAME%>?f=<%=u f%>'><%=h f%></a></span>
+          <span class='folder'><a href='<%=cgi_link(query)%>'><%=h f%></a></span>
         <% end %>
       <% end %>
     </div>

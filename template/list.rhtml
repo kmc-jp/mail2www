@@ -10,10 +10,11 @@
 
     <div class='header'>
       <% FOLDERS.each do |f| %>
+        <% query = {:f => u(f)} %>
         <% if f == folder %>
-          <span class='folder_sel'><a href='<%=h CGI_NAME%>?f=<%=u f%>'>[<%=h f%>]</a></span>
+          <span class='folder_sel'><a href='<%=cgi_link(query)%>'>[<%=h f%>]</a></span>
         <% else %>
-          <span class='folder'><a href='<%=h CGI_NAME%>?f=<%=u f%>'><%=h f%></a></span>
+          <span class='folder'><a href='<%=cgi_link(query)%>'><%=h f%></a></span>
         <% end %>
       <% end %>
     </div>
@@ -26,20 +27,26 @@
         <tr><td colspan="4" class="pages">
             page
             <% (0...pages).each do |i| %>
+              <% query = {:f => u(folder), :p => i} %>
               <% if i == page %>
-                <span class="page_sel"><%= cgi_link("[#{i}]", {'f'=>folder, 'p'=>i}) %></span>
+                <span class="page_sel">
+                  <a href='<%= cgi_link(query) %>'>[<%= i %>]</a>
+                </span>
               <% else %>
-                <span class="page"><%= cgi_link( i.to_s,  {'f'=>folder, 'p'=>i}) %></span>
+                <span class="page">
+                  <a href='<%= cgi_link(query) %>'><%= i %></a>
+                </span>
               <% end %>
             <% end %>
         </td></tr>
         <tr><th>time</th><th>no</th><th>from</th><th>subject</th></tr>
         <% mails.reverse.each do |num, from, time, subject| %>
+          <% query = {:f => u(folder), :m => num} %>
           <tr>
             <td class="time"><%=h time%></td>
-            <td class="num" ><a href='<%=h CGI_NAME%>?f=<%=u folder%>&m=<%=u num%>'><%=h num%></a></td>
+            <td class="num" ><a href='<%=cgi_link(query)%>'><%=h num%></a></td>
             <td class="from"><%=h from%></td>
-            <td class="subj"><a href='<%=h CGI_NAME%>?f=<%=u folder%>&m=<%=u num%>'><%=h subject%></a></td>
+            <td class="subj"><a href='<%=cgi_link(query)%>'><%=h subject%></a></td>
           </tr>
         <% end %>
       </table>
