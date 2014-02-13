@@ -18,6 +18,8 @@ $:.unshift(File.dirname(__FILE__))
 require_relative 'mails'
 require_relative 'log'
 
+File.umask(0022)
+
 begin
   mail = ARGF.read
   Mails.new.add(mail)
