@@ -1,4 +1,4 @@
-# -*- conding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 require 'rubygems'
 require 'bundler/setup'
@@ -7,7 +7,7 @@ require 'erb'
 require 'mail'
 require 'kconv'
 
-require 'config'
+require 'lib/config'
 require 'lib/utils'
 
 class Application
