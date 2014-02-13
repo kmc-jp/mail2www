@@ -7,8 +7,8 @@ require 'erb'
 require 'mail'
 require 'kconv'
 
-require 'lib/config'
-require 'lib/utils'
+require_relative 'config'
+require_relative 'utils'
 
 class Application
   include Config

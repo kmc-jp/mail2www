@@ -15,7 +15,7 @@ if UNDER_MAINTENANCE
 end
 
 $:.unshift(File.dirname(__FILE__))
-require 'mails'
+require_relative 'mails'
 
 begin
   mail = ARGF.read

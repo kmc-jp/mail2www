@@ -3,7 +3,7 @@
 require 'rubygems'
 require 'bundler/setup'
 
-require 'config'
+require_relative 'config'
 
 class Mails
   include Config

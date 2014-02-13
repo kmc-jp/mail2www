@@ -1,6 +1,6 @@
 # -*- coding: utf-8
 
-require 'config'
+require_relative 'config'
 
 module Log
   def self.open
