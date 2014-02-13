@@ -16,6 +16,7 @@ end
 
 $:.unshift(File.dirname(__FILE__))
 require_relative 'mails'
+require_relative 'log'
 
 begin
   mail = ARGF.read

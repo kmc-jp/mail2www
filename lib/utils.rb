@@ -39,4 +39,8 @@ module Utils
   def cgi_link(query)
     "#{h(Config::CGI_NAME)}?#{build_query(query)}"
   end
+
+  def in_to_or_cc?(mail, regexp)
+    (mail.to && mail.to.join(',') =~ regexp) || (mail.cc && mail.cc.join(',') =~ regexp)
+  end
 end

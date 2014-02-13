@@ -4,6 +4,7 @@ require 'rubygems'
 require 'bundler/setup'
 
 require_relative 'config'
+require_relative 'index'
 
 class Mails
   include Config
@@ -11,7 +12,6 @@ class Mails
   def initialize
     FOLDERS.each do |folder|
       dir = File.join(MAIL_DIR, folder)
-      dir = MAILDIR + folder
       Dir.mkdir dir unless File.exists? dir
     end
   end
