@@ -5,5 +5,5 @@ $:.unshift(File.dirname(__FILE__))
 require 'lib/app'
 
 use Rack::Static, :urls => ["/css"], :root => "./"
-use Rack::ContentType
+use Rack::ContentType, "text/html; charset=utf-8"
 run Application.new
