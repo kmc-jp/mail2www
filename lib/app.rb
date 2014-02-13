@@ -58,7 +58,7 @@ class Application
     pages = pages + 1 if (files.size % MAILS_PER_PAGE != 0)
     page = 0 unless page.between?(0, pages - 1)
 
-    files = files.slice(page * MAILS_PER_PAGE, MAILS_PER_PAGE)
+    files = files.slice(page * MAILS_PER_PAGE, MAILS_PER_PAGE).reverse
     mails = files.map do |num|
       mail_path = File.join(mails_path, num.to_s)
       mail = Mail.read(mail_path)
