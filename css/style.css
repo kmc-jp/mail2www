@@ -16,19 +16,22 @@ div.header .folder_sel a{
 	font-weight:bold;
 }
 
+div.main { width:80%; margin:auto; }
 div.main a:link    { color:green; }
 div.main a:active  { color:green; }
 div.main a:hover   { color:green; }
 div.main a:visited { color:gray; }
 
-div.main span.page_sel a:visited{
+/* page list */
+div.pages { font-size:small; }
+
+div.pages span.page_sel a{
 	color:orange;
 	font-weight:bold;
 }
 
-table#mail_list { width:80%; margin:auto;}
+table#mail_list { min-width:100%; }
 table#mail_list th{ background:#ddd; }
-table#mail_list .pages{ text-align:right; font-size:small;}
 table#mail_list .num { font-weight:bold; }
 table#mail_list .time{ font-size:small; }
 table#mail_list .from{ font-size:small; }
