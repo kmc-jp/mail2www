@@ -46,7 +46,6 @@ class Application
 
     Rack::Response.new do |r|
       r.status = 200
-      r['Content-Type'] = 'text/html; charset=utf-8'
       r.write html
     end
   end
