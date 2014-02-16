@@ -1,7 +1,6 @@
 #
 # config.rb - mail2www configuration file
 #
-require 'tempfile'
 require 'mail'
 require_relative 'utils'
 
@@ -27,14 +26,7 @@ module Mail2www
     end
 
     def assort(mail)
-      tmp = Tempfile.new("mail2www")
-      begin
-        tmp.write mail
-        mail = Mail.read(tmp.path)
-      rescue
-        tmp.close
-        tmp.unlink
-      end
+      mail = Mail.new(mail)
 
       if in_to_or_cc?(mail, /kmc-ml@googlegroups.com/)
         'kmc-ml'
