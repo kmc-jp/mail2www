@@ -2,14 +2,14 @@
 <html>
   <head>
     <meta charset="utf-8">
-	<title><%=h CGI_TITLE%>(<%=h folder%>) / <%=h subject%></title>
+	<title><%=h @config[:cgi_title]%>(<%=h folder%>) / <%=h subject%></title>
     <link rel='stylesheet' type='text/css' href='css/style.css'>
   </head>
 
   <body>
 
     <div class='header'>
-      <% FOLDERS.each do |f| %>
+      <% @config[:folders].each do |f| %>
         <% query = {:f => u(f)} %>
         <% if f == folder %>
           <span class='folder_sel'><a href='<%=cgi_link(query)%>'>[<%=h f%>]</a></span>

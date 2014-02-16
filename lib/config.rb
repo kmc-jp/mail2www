@@ -5,53 +5,59 @@ require 'tempfile'
 require 'mail'
 require_relative 'utils'
 
-module Config
-  include Utils
+module Mail2www
+  class Config < Hash
+    include Utils
 
-  # user configuration
-  LOGFILE = "log.txt"
-  MAIL_DIR = "./mail"
-  SPAM_FILTER = ""
-  FOLDERS = [ "test", "admin", "info" ]
-  CGI_TITLE = "mail2www"
-  CGI_NAME = "" # index.cgi
+    def initialize(other={})
+      merge!(other)
 
-  # system configuration
-  INDEX_FILE = "index"
-  PERM_FILES = 0644
-  MAILS_PER_PAGE = 20
+      # user configurations
+      self[:log_file] ||= "log.txt"
+      self[:mail_dir] ||= "./mail"
+      self[:spam_filter] ||= ""
+      self[:folders] ||= ["test", "admin", "info", "other"]
+      self[:cgi_title] ||= "mail2www"
+      self[:cgi_name] ||= "" # index.cgi
 
-  def assort(mail)
-    tmp = Tempfile.new("mail2www")
-    begin
-      tmp.write mail
-      mail = Mail.read(tmp.path)
-    rescue
-      tmp.close
-      tmp.unlink
+      # system configurations
+      self[:index_file] ||= "index"
+      self[:perm_files] ||= 0644
+      self[:mails_per_page] ||= 20
     end
 
-    if in_to_or_cc?(mail, /kmc-ml@googlegroups.com/)
-      'kmc-ml'
-    elsif in_to_or_cc?(mail, /info@kmc.gr.jp/)
-      'info'
-    else
-      'other'
-    end
-  end
+    def assort(mail)
+      tmp = Tempfile.new("mail2www")
+      begin
+        tmp.write mail
+        mail = Mail.read(tmp.path)
+      rescue
+        tmp.close
+        tmp.unlink
+      end
 
-  def spam?(mail)
-    IO.popen(SPAM_FILTER, "r+") do |io|
-      io.write mail
+      if in_to_or_cc?(mail, /kmc-ml@googlegroups.com/)
+        'kmc-ml'
+      elsif in_to_or_cc?(mail, /info@kmc.gr.jp/)
+        'info'
+      else
+        'other'
+      end
     end
 
-    case ($?.to_i / 256)
-    when 0
-      true
-    when 1
-      false
-    else
-      raise "failed to execute spam filter: #{$?}"
+    def spam?(mail)
+      IO.popen(SPAM_FILTER, "r+") do |io|
+        io.write mail
+      end
+
+      case ($?.to_i / 256)
+      when 0
+        true
+      when 1
+        false
+      else
+        raise "failed to execute spam filter: #{$?}"
+      end
     end
   end
 end

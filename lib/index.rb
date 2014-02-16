@@ -1,15 +1,14 @@
 # -*- coding: utf-8
 
-require_relative 'config'
-
 class Index
-  include Config
 
-  def initialize(folder)
-    index_file = File.join(MAIL_DIR, folder, INDEX_FILE)
+  def initialize(config, folder)
+    @config = config
+
+    index_file = File.join(@config[:mail_dir], folder, @config[:index_file])
     if not File.exists? index_file
       @file = File.open(index_file, "w")
-      @file.chmod(PERM_FILES)
+      @file.chmod(@config[:perm_files])
       @index = 0
     else
       @file = File.open(index_file, "r+")

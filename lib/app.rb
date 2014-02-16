@@ -7,17 +7,19 @@ require 'erb'
 require 'mail'
 require 'kconv'
 
-require_relative 'config'
 require_relative 'utils'
 
 class Application
-  include Config
   include Utils
+
+  def initialize(config)
+    @config = config
+  end
 
   def call(env)
     req = Rack::Request.new(env)
 
-    folder = req.params['f'] || FOLDERS[0]
+    folder = req.params['f'] || @config[:folders][0]
     mailnum = req.params['m']
     page = req.params['p'].to_i
 
@@ -51,14 +53,15 @@ class Application
   end
 
   def list(folder, page)
-    mails_path = File.join(MAIL_DIR, folder)
+    mails_path = File.join(@config[:mail_dir], folder)
     files = Dir.entries(mails_path).map!{|file| file.to_i}
             .sort.reject{|n| n == 0}.reverse
-    pages = files.size / MAILS_PER_PAGE
-    pages = pages + 1 if (files.size % MAILS_PER_PAGE != 0)
+    mails_per_page = @config[:mails_per_page]
+    pages = files.size / mails_per_page
+    pages = pages + 1 if (files.size % mails_per_page != 0)
     page = 0 unless page.between?(0, pages - 1)
 
-    files = files.slice(page * MAILS_PER_PAGE, MAILS_PER_PAGE)
+    files = files.slice(page * mails_per_page, mails_per_page)
     mails = files.map do |num|
       mail_path = File.join(mails_path, num.to_s)
       mail = Mail.read(mail_path)
@@ -80,7 +83,7 @@ class Application
   end
 
   def mail(folder, mailnum)
-    path = File.join(MAIL_DIR, folder, mailnum)
+    path = File.join(@config[:mail_dir], folder, mailnum)
     if File.exists? path
       mail = Mail.read(path)
       subject = mail.subject.toutf8 || '(no subject)'
@@ -100,5 +103,9 @@ class Application
     end
 
     make_response('./template/mail.rhtml', binding)
+  end
+
+  def cgi_link(query)
+    "#{h @config[:cgi_name]}?#{build_query(query)}"
   end
 end

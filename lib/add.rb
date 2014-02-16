@@ -17,12 +17,14 @@ end
 $:.unshift(File.dirname(__FILE__))
 require_relative 'mails'
 require_relative 'log'
+require_relative 'config'
 
 File.umask(0022)
+config = Mail2www::Config.new
 
 begin
   mail = ARGF.read
-  Mails.new.add(mail)
+  Mails.new(config).add(mail)
 rescue Exception => e
-  Log.write e.message, e.backtrace.join("\n")
+  Log.write config[:log_file], e.message, e.backtrace.join("\n")
 end
