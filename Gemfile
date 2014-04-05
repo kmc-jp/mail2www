@@ -6,4 +6,5 @@ gem 'mail'
 
 group :development, :test do
   gem 'thin'
+  gem 'rspec'
 end
