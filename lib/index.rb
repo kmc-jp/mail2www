@@ -8,17 +8,17 @@ class Index
     index_file = File.join(@config[:mail_dir], folder, @config[:index_file])
     if not File.exists? index_file
       @file = File.open(index_file, "w")
+      while @file.flock(File::LOCK_EX | File::LOCK_NB) != 0
+        sleep 1
+      end
       @file.chmod(@config[:perm_files])
       @index = 0
     else
       @file = File.open(index_file, "r+")
+      while @file.flock(File::LOCK_EX | File::LOCK_NB) != 0
+        sleep 1
+      end
       @index = @file.read.to_i
-    end
-
-    # trying to get lock until success
-    while @file.flock(File::LOCK_EX | File::LOCK_NB) != 0
-      # failed to get lock
-      sleep 1
     end
   end
 
