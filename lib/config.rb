@@ -13,7 +13,7 @@ module Mail2www
 
       # user configurations
       self[:log_file] ||= "log.txt"
-      self[:mail_dir] ||= "./mail"
+      self[:mail_dir] ||= File.expand_path(File.dirname(__FILE__)) + '/../mail'
       self[:spam_filter] ||= ""
       self[:folders] ||= ["test", "admin", "info", "other"]
       self[:cgi_title] ||= "mail2www"
