@@ -68,7 +68,7 @@ class Application < Sinatra::Base
       [num.to_s, mail.from.join(','), time, mail.subject.toutf8]
     end
 
-    make_response('./template/list.rhtml', binding)
+    make_response('./views/list.rhtml', binding)
   end
 
   def get_header(mail)
@@ -99,7 +99,7 @@ class Application < Sinatra::Base
       end
     end
 
-    make_response('./template/mail.rhtml', binding)
+    make_response('./views/mail.rhtml', binding)
   end
 
   def cgi_link(query)
