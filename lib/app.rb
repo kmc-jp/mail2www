@@ -6,22 +6,22 @@ require 'time'
 require 'erb'
 require 'mail'
 require 'kconv'
+require 'sinatra/base'
 
 require_relative 'utils'
 
-class Application
+class Application < Sinatra::Base
   include Utils
 
   def initialize(config)
     @config = config
+    super
   end
 
-  def call(env)
-    req = Rack::Request.new(env)
-
-    folder = req.params['f'] || @config[:folders][0]
-    mailnum = req.params['m']
-    page = req.params['p'].to_i
+  get '/' do
+    folder = params['f'] || @config[:folders][0]
+    mailnum = params['m']
+    page = params['p'].to_i
 
     # dispatch
     response = nil
@@ -32,12 +32,9 @@ class Application
     end
 
     if response.nil?
-      response = Rack::Response.new do |r|
-        r.status = 500
-        r.write 'Something went wrong!'
-      end
+      response = 'Something went wrong!'
     end
-    response.finish
+    response
   end
 
   def make_response(template, bind)
@@ -45,11 +42,11 @@ class Application
     File.open(template) do |f|
       html = ERB.new(f.read).result(bind)
     end
+    html
+  end
 
-    Rack::Response.new do |r|
-      r.status = 200
-      r.write html
-    end
+  # Stop annoying errors
+  get '/favicon.ico' do
   end
 
   def list(folder, page)
