@@ -10,7 +10,7 @@ class Mails
     @config = config
     @config[:folders].each do |folder|
       dir = File.join(@config[:mail_dir], folder)
-      Dir.mkdir dir unless File.exists? dir
+      Dir.mkdir dir unless File.exist? dir
     end
   end
 
@@ -21,7 +21,7 @@ class Mails
     index.close
 
     mailpath = File.join(@config[:mail_dir], folder, index.value.to_s)
-    File.open(mailpath, "wb") do |f|
+    File.open(mailpath, 'wb') do |f|
       f.write mail
       f.chmod @config[:perm_files]
     end

@@ -1,20 +1,19 @@
 # -*- coding: utf-8
 
 class Index
-
   def initialize(config, folder)
     @config = config
 
     index_file = File.join(@config[:mail_dir], folder, @config[:index_file])
-    if not File.exists? index_file
-      @file = File.open(index_file, "w")
+    if !File.exist? index_file
+      @file = File.open(index_file, 'w')
       while @file.flock(File::LOCK_EX | File::LOCK_NB) != 0
         sleep 1
       end
       @file.chmod(@config[:perm_files])
       @index = 0
     else
-      @file = File.open(index_file, "r+")
+      @file = File.open(index_file, 'r+')
       while @file.flock(File::LOCK_EX | File::LOCK_NB) != 0
         sleep 1
       end
