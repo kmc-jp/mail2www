@@ -5,4 +5,4 @@ $:.unshift(File.dirname(__FILE__))
 require 'lib/app'
 require 'lib/config'
 
-run Application.new(Mail2www::Config.new)
+run Mail2www::App.new(Mail2www::Config.new)
