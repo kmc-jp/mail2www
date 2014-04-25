@@ -13,6 +13,8 @@ require_relative 'utils'
 class Application < Sinatra::Base
   include Utils
 
+  set :public_folder, "#{File.dirname(__FILE__)}/../public"
+
   def initialize(config)
     @config = config
     super
