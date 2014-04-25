@@ -23,6 +23,8 @@ module Mail2www
     end
 
     get '/' do
+      redirect (request.url + '/') if request.path_info.empty?
+
       folder = params['f'] || @config[:folders][0]
       mailnum = params['m']
       page = params['p'].to_i
