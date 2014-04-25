@@ -13,6 +13,7 @@ require_relative 'utils'
 class Application < Sinatra::Base
   include Utils
 
+  set :views, "#{File.dirname(__FILE__)}/../views"
   set :public_folder, "#{File.dirname(__FILE__)}/../public"
 
   def initialize(config)
@@ -39,14 +40,6 @@ class Application < Sinatra::Base
     response
   end
 
-  def make_response(template, bind)
-    html = nil
-    File.open(template) do |f|
-      html = ERB.new(f.read).result(bind)
-    end
-    html
-  end
-
   # Stop annoying errors
   get '/favicon.ico' do
   end
@@ -70,7 +63,8 @@ class Application < Sinatra::Base
       [num.to_s, mail.from.join(','), time, mail.subject.toutf8]
     end
 
-    make_response('./views/list.rhtml', binding)
+    vars = { :folder => folder, :pages => pages, :page => page, :mails => mails }
+    erb :list, :layout => false, :locals => vars
   end
 
   def get_header(mail)
@@ -101,7 +95,9 @@ class Application < Sinatra::Base
       end
     end
 
-    make_response('./views/mail.rhtml', binding)
+    vars = { :folder => folder, :subject => subject, :mail => mail,
+      :header => header, :body => body }
+    erb :mail, :locals => vars
   end
 
   def cgi_link(query)
