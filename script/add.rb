@@ -17,7 +17,7 @@ end
 $:.unshift(File.dirname(__FILE__))
 require_relative 'mails'
 require_relative 'log'
-require_relative '../lib/config'
+require_relative 'config'
 
 File.umask(0022)
 config = Mail2www::Config.new

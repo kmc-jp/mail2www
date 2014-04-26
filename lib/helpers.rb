@@ -55,17 +55,17 @@ module Mail2www
       end
     end
 
-    def from(mail)
+    def get_from(mail)
       to_string(mail.from)
     end
 
-    def to(mail)
+    def get_to(mail)
       to_string(mail.to)
     end
 
     def get_header(mail)
-      ['From: ' << (from(mail) || '(none)'),
-       'To: ' << (to(mail) || '(none)'),
+      ['From: ' << (get_from(mail) || '(none)'),
+       'To: ' << (get_to(mail) || '(none)'),
        'Subject: ' << (mail.subject.toutf8 || '(none)'),
        'Date: ' << (mail.date.to_s || '(none)')
       ].join("\n")

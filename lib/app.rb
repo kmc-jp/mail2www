@@ -25,7 +25,7 @@ module Mail2www
     get '/' do
       redirect to(append_slash(request.url)) if request.path_info.empty?
 
-      @title = @config[:cgi_title]
+      @title = @config[:title]
       folder = params['f'] || @config[:folders][0]
       mailnum = params['m']
       page = params['p'].to_i
@@ -62,7 +62,7 @@ module Mail2www
         t = mail.date.nil? ? Time.now : Time.parse(mail.date.to_s)
         time = "#{t.month}/#{t.day} (#{how_old(t)})"
 
-        [num.to_s, from(mail), time, mail.subject.toutf8]
+        [num.to_s, get_from(mail), time, mail.subject.toutf8]
       end
 
       vars = { folder: folder, pages: pages, page: page, mails: mails }
@@ -91,7 +91,7 @@ module Mail2www
         end
       end
 
-      @title = @title + "(#{folder}) / #{subject}"
+      @title = @title + "(#{folder || '(none)'}) / #{subject || '(none)'}"
       vars = { folder: folder, subject: subject, mail: mail, header: header, body: body }
       erb :mail, locals: vars
     end
