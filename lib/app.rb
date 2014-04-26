@@ -59,7 +59,7 @@ module Mail2www
         t = mail.date.nil? ? Time.now : Time.parse(mail.date.to_s)
         time = "#{t.month}/#{t.day} (#{how_old(t)})"
 
-        [num.to_s, get_from(mail), time, mail.subject.toutf8]
+        [num.to_s, get_from(mail), time, get_subject(mail)]
       end
 
       vars = { folder: folder, pages: pages, page: page, mails: mails }
@@ -71,10 +71,9 @@ module Mail2www
       halt(404, 'File not found') unless File.file?(path)
 
       mail = Mail.read(path)
-      subject = mail.subject.toutf8 || '(no subject)'
 
-      @title += "(#{folder || '(none)'}) / #{subject || '(none)'}"
-      vars = { folder: folder, subject: subject, mail: mail }
+      @title += "(#{folder || '(none)'}) / #{get_subject(mail)}"
+      vars = { folder: folder, mail: mail }
       erb :mail, locals: vars
     end
   end

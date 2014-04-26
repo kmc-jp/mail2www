@@ -10,7 +10,7 @@ module Mail2www
 
       # user configurations
       self[:mail_dir] ||= File.expand_path(File.dirname(__FILE__)) + '/../mail'
-      self[:folders] ||= %w(test admin info other)
+      self[:folders] ||= %w(test admin info other shinkan2014)
       self[:title] ||= 'mail2www'
 
       # system configurations

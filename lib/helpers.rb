@@ -63,10 +63,18 @@ module Mail2www
       to_string(mail.to)
     end
 
+    def get_subject(mail)
+      if !mail.subject.nil?
+        mail.subject.toutf8
+      else
+        '(no subject)'
+      end
+    end
+
     def get_header(mail)
       ['From: ' << (get_from(mail) || '(none)'),
        'To: ' << (get_to(mail) || '(none)'),
-       'Subject: ' << (mail.subject.toutf8 || '(none)'),
+       'Subject: ' << (get_subject(mail) || '(none)'),
        'Date: ' << (mail.date.to_s || '(none)')
       ].join("\n")
     end
