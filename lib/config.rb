@@ -17,7 +17,6 @@ module Mail2www
       self[:spam_filter] ||= ""
       self[:folders] ||= ["test", "admin", "info", "other"]
       self[:cgi_title] ||= "mail2www"
-      self[:cgi_name] ||= "" # index.cgi
 
       # system configurations
       self[:index_file] ||= "index"

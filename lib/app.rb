@@ -105,7 +105,7 @@ module Mail2www
     end
 
     def cgi_link(query)
-      "#{h @config[:cgi_name]}?#{build_query(query)}"
+      "?#{build_query(query)}"
     end
   end
 end
