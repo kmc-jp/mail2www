@@ -8,4 +8,6 @@ gem 'sinatra'
 group :development, :test do
   gem 'thin'
   gem 'rspec'
+  gem 'guard', require: false
+  gem 'guard-rspec', require: false
 end
