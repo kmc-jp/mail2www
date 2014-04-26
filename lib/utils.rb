@@ -40,5 +40,16 @@ module Mail2www
     def in_to_or_cc?(mail, regexp)
       (mail.to && mail.to.join(',') =~ regexp) || (mail.cc && mail.cc.join(',') =~ regexp)
     end
+
+    def append_slash(url)
+      if url.include?('?')
+        path, q, query = url.rpartition('?')
+        path = path + '/' unless path.end_with?('/')
+        url = path + q + query
+      else
+        url = url + '/' unless url.end_with?('/')
+      end
+      url
+    end
   end
 end

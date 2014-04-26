@@ -109,4 +109,25 @@ describe Mail2www::Utils do
       end
     end
   end
+
+  describe "append_slash" do
+    let (:url) { "http://example.com/example" }
+    let (:url_end_with_slash) { "http://example.com/example/" }
+    let (:with_query) { "http://example.com/example?foo=bar" }
+    let (:with_query2) { "http://example.com/example/?foo=bar" }
+
+    context "when an url is not end with a slash" do
+      it "should return the url with a slash" do
+        expect(append_slash(url)).to eq(url_end_with_slash)
+        expect(append_slash(with_query)).to eq(with_query2)
+      end
+    end
+
+    context "when an url is end with a slash" do
+      it "should return the url as is" do
+        expect(append_slash(url_end_with_slash)).to eq(url_end_with_slash)
+        expect(append_slash(with_query2)).to eq(with_query2)
+      end
+    end
+  end
 end
