@@ -2,11 +2,11 @@
 # config.rb - mail2www configuration file
 #
 require 'mail'
-require_relative 'utils'
+require_relative '../script/utils'
 
 module Mail2www
   class Config < Hash
-    include Utils
+    include Mail2www::Utils
 
     def initialize(other={})
       merge!(other)

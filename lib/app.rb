@@ -8,11 +8,11 @@ require 'mail'
 require 'kconv'
 require 'sinatra/base'
 
-require_relative 'utils'
+require_relative 'helpers'
 
 module Mail2www
   class App < Sinatra::Base
-    include Mail2www::Utils
+    helpers Mail2www::Helpers
 
     set :views, "#{File.dirname(__FILE__)}/../views"
     set :public_folder, "#{File.dirname(__FILE__)}/../public"
@@ -69,14 +69,6 @@ module Mail2www
       erb :list, locals: vars
     end
 
-    def get_header(mail)
-      ['From: ' << (mail.from.join(',') || '(none)'),
-        'To: ' << (mail.to.join(',') || '(none)'),
-        'Subject: ' << (mail.subject.toutf8 || '(none)'),
-        'Date: ' << (mail.date.to_s || '(none)')
-      ].join("\n")
-    end
-
     def mail(folder, mailnum)
       path = File.join(@config[:mail_dir], folder, mailnum)
       if File.exist? path
@@ -102,10 +94,6 @@ module Mail2www
       @title = @title + "(#{folder}) / #{subject}"
       vars = { folder: folder, subject: subject, mail: mail, header: header, body: body }
       erb :mail, locals: vars
-    end
-
-    def cgi_link(query)
-      "?#{build_query(query)}"
     end
   end
 end

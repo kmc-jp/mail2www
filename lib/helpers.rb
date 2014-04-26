@@ -3,17 +3,16 @@
 require 'rubygems'
 require 'bundler/setup'
 require 'rack'
+require 'sinatra/base'
 
 module Mail2www
-  module Utils
-    include Rack::Utils
-
+  module Helpers
     def h(str)
-      escape_html(str)
+      Rack::Utils.escape_html(str)
     end
 
     def u(str)
-      escape(str)
+      Rack::Utils.escape(str)
     end
 
     def how_old(t)
@@ -37,10 +36,6 @@ module Mail2www
       end
     end
 
-    def in_to_or_cc?(mail, regexp)
-      (mail.to && mail.to.join(',') =~ regexp) || (mail.cc && mail.cc.join(',') =~ regexp)
-    end
-
     def append_slash(url)
       if url.include?('?')
         path, q, query = url.rpartition('?')
@@ -50,6 +45,18 @@ module Mail2www
         url = url + '/' unless url.end_with?('/')
       end
       url
+    end
+
+    def get_header(mail)
+      ['From: ' << (mail.from.join(',') || '(none)'),
+        'To: ' << (mail.to.join(',') || '(none)'),
+        'Subject: ' << (mail.subject.toutf8 || '(none)'),
+        'Date: ' << (mail.date.to_s || '(none)')
+      ].join("\n")
+    end
+
+    def cgi_link(query)
+      "?#{build_query(query)}"
     end
   end
 end
