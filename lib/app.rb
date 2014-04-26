@@ -25,6 +25,7 @@ module Mail2www
     get '/' do
       redirect to(append_slash(request.url)) if request.path_info.empty?
 
+      @title = @config[:cgi_title]
       folder = params['f'] || @config[:folders][0]
       mailnum = params['m']
       page = params['p'].to_i
@@ -98,6 +99,7 @@ module Mail2www
         end
       end
 
+      @title = @title + "(#{folder}) / #{subject}"
       vars = { folder: folder, subject: subject, mail: mail, header: header, body: body }
       erb :mail, locals: vars
     end
