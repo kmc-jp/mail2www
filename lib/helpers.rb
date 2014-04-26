@@ -71,6 +71,24 @@ module Mail2www
       ].join("\n")
     end
 
+    def get_body(mail)
+      body = ''
+      if mail.multipart?
+        body = mail.parts.reduce('') do |enum, part|
+          # TODO: Show something for non-text part.
+          if part.content_type.start_with?('text/plain')
+            enum << '\n---------------\n' unless body.empty?
+            enum << part.decoded.toutf8
+          end
+          enum
+        end
+      else
+        body << mail.body.decoded.toutf8
+      end
+
+      body
+    end
+
     def cgi_link(query)
       "?#{build_query(query)}"
     end

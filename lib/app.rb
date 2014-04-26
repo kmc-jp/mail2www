@@ -72,24 +72,9 @@ module Mail2www
 
       mail = Mail.read(path)
       subject = mail.subject.toutf8 || '(no subject)'
-      header = get_header(mail)
-
-      body = ''
-      if mail.multipart?
-        body = mail.parts.reduce('') do |enum, part|
-          # TODO: Show something for non-text part.
-          if part.content_type.start_with?('text/plain')
-            enum << '\n---------------\n' unless body.empty?
-            enum << part.decoded.toutf8
-          end
-          enum
-        end
-      else
-        body << mail.body.decoded.toutf8
-      end
 
       @title += "(#{folder || '(none)'}) / #{subject || '(none)'}"
-      vars = { folder: folder, subject: subject, mail: mail, header: header, body: body }
+      vars = { folder: folder, subject: subject, mail: mail }
       erb :mail, locals: vars
     end
   end

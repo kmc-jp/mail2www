@@ -15,9 +15,9 @@
   <% if mail.nil? %>
     mail <%=h mailnum%> was not found.
   <% else %>
-    <pre><%=h header%></pre>
+    <pre><%=h(get_header mail)%></pre>
     <hr>
-    <pre><%=h body%></pre>
+    <pre><%=h(get_body mail)%></pre>
   <% end %>
 </div>
 <hr>
