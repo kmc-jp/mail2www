@@ -62,7 +62,7 @@ module Mail2www
         t = mail.date.nil? ? Time.now : Time.parse(mail.date.to_s)
         time = "#{t.month}/#{t.day} (#{how_old(t)})"
 
-        [num.to_s, mail.from.join(','), time, mail.subject.toutf8]
+        [num.to_s, from(mail), time, mail.subject.toutf8]
       end
 
       vars = { folder: folder, pages: pages, page: page, mails: mails }

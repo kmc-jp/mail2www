@@ -47,11 +47,27 @@ module Mail2www
       url
     end
 
+    def to_string(x)
+      if x.is_a?(Array)
+        x.map { |item| item.to_s } .join(',')
+      else
+        x.to_s
+      end
+    end
+
+    def from(mail)
+      to_string(mail.from)
+    end
+
+    def to(mail)
+      to_string(mail.to)
+    end
+
     def get_header(mail)
-      ['From: ' << (mail.from.join(',') || '(none)'),
-        'To: ' << (mail.to.join(',') || '(none)'),
-        'Subject: ' << (mail.subject.toutf8 || '(none)'),
-        'Date: ' << (mail.date.to_s || '(none)')
+      ['From: ' << (from(mail) || '(none)'),
+       'To: ' << (to(mail) || '(none)'),
+       'Subject: ' << (mail.subject.toutf8 || '(none)'),
+       'Date: ' << (mail.date.to_s || '(none)')
       ].join("\n")
     end
 
