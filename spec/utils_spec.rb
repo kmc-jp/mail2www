@@ -6,8 +6,8 @@ require 'mail'
 require_relative './spec_helper'
 require_relative '../lib/utils'
 
-describe Utils do
-  include Utils
+describe Mail2www::Utils do
+  include Mail2www::Utils
 
   describe "how_old" do
     let (:now) { Time.local(2014, 4, 1, 10, 10, 10) }
