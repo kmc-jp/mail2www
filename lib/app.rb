@@ -30,16 +30,11 @@ module Mail2www
       mailnum = params['m']
       page = params['p'].to_i
 
-      # dispatch
-      response = nil
-      if mailnum.nil?
-        response = list(folder, page)
+      if mailnum
+        mail(folder, mailnum)
       else
-        response = mail(folder, mailnum)
+        list(folder, page)
       end
-
-      response = 'Something went wrong!' if response.nil?
-      response
     end
 
     # Stop annoying errors
@@ -48,6 +43,8 @@ module Mail2www
 
     def list(folder, page)
       mails_path = File.join(@config[:mail_dir], folder)
+      halt(404, 'Folder not found') unless File.directory?(mails_path)
+
       files = Dir.entries(mails_path).map! { |file| file.to_i }
         .sort.reject { |n| n == 0 }.reverse
       mails_per_page = @config[:mails_per_page]
@@ -71,27 +68,27 @@ module Mail2www
 
     def mail(folder, mailnum)
       path = File.join(@config[:mail_dir], folder, mailnum)
-      if File.exist? path
-        mail = Mail.read(path)
-        subject = mail.subject.toutf8 || '(no subject)'
-        header = get_header(mail)
+      halt(404, 'File not found') unless File.file?(path)
 
-        body = ''
-        if mail.multipart?
-          body = mail.parts.reduce('') do |enum, part|
-            # TODO: Show something for non-text part.
-            if part.content_type.start_with?('text/plain')
-              enum << '\n---------------\n' unless body.empty?
-              enum << part.decoded.toutf8
-            end
-            enum
+      mail = Mail.read(path)
+      subject = mail.subject.toutf8 || '(no subject)'
+      header = get_header(mail)
+
+      body = ''
+      if mail.multipart?
+        body = mail.parts.reduce('') do |enum, part|
+          # TODO: Show something for non-text part.
+          if part.content_type.start_with?('text/plain')
+            enum << '\n---------------\n' unless body.empty?
+            enum << part.decoded.toutf8
           end
-        else
-          body << mail.body.decoded.toutf8
+          enum
         end
+      else
+        body << mail.body.decoded.toutf8
       end
 
-      @title = @title + "(#{folder || '(none)'}) / #{subject || '(none)'}"
+      @title += "(#{folder || '(none)'}) / #{subject || '(none)'}"
       vars = { folder: folder, subject: subject, mail: mail, header: header, body: body }
       erb :mail, locals: vars
     end
