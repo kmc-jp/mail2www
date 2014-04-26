@@ -19,30 +19,30 @@ module Mail2www
       diff = Time.now - t
 
       m = 60
-      h = 60*m
-      d = 24*h
+      h = 60 * m
+      d = 24 * h
 
       case diff
       when 0...m
-        format "%ds", diff
+        format '%ds', diff
       when m...h
-        format "%dm", diff/m
+        format '%dm', diff / m
       when h...d
-        format "%dh", diff/h
-      when d..d*30
-        format "%dd", diff/d
+        format '%dh', diff / h
+      when d..d * 30
+        format '%dd', diff / d
       else
-        format "%dM", diff/(d*30) # Do we need more precise way?
+        format '%dM', diff / (d * 30) # Do we need more precise way?
       end
     end
 
     def append_slash(url)
       if url.include?('?')
         path, q, query = url.rpartition('?')
-        path = path + '/' unless path.end_with?('/')
+        path += '/' unless path.end_with?('/')
         url = path + q + query
       else
-        url = url + '/' unless url.end_with?('/')
+        url += '/' unless url.end_with?('/')
       end
       url
     end
