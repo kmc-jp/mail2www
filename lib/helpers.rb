@@ -59,11 +59,16 @@ module Mail2www
       (mail.subject && mail.subject.toutf8) || '(no subject)'
     end
 
+    def get_date(mail)
+      (mail.date && mail.date.to_s) ||
+        (mail.envelope_date && mail.envelope_date.to_s)
+    end
+
     def get_header(mail)
       ['From: ' << (get_from(mail) || '(none)'),
        'To: ' << (get_to(mail) || '(none)'),
        'Subject: ' << get_subject(mail),
-       'Date: ' << (mail.date.to_s || '(none)')
+       'Date: ' << (get_date(mail) || '(none)')
       ].join("\n")
     end
 

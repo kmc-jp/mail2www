@@ -56,7 +56,7 @@ module Mail2www
       mails = files.map do |num|
         mail_path = File.join(mails_path, num.to_s)
         mail = Mail.read(mail_path)
-        t = mail.date.nil? ? Time.now : Time.parse(mail.date.to_s)
+        t = Time.parse(get_date(mail)) || Time.now
         time = "#{t.month}/#{t.day} (#{how_old(t)})"
 
         [num.to_s, get_from(mail), time, get_subject(mail)]
