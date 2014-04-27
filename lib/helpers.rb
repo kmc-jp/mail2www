@@ -95,7 +95,7 @@ module Mail2www
     def get_body(mail)
       if mail.multipart?
         get_multipart_body(mail.parts)
-      elsif mail.body.content_type.start_with?('text/')
+      else
         mail.body.decoded.toutf8
       end
     end
