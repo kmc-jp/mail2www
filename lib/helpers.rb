@@ -47,49 +47,34 @@ module Mail2www
       url
     end
 
-    def to_string(x)
-      if x.is_a?(Array)
-        x.map { |item| item.to_s } .join(',')
-      else
-        x.to_s
-      end
-    end
-
     def get_from(mail)
-      to_string(mail.from)
+      mail.from_addrs.join(',')
     end
 
     def get_to(mail)
-      to_string(mail.to)
+      mail.to_addrs.join(',')
     end
 
     def get_subject(mail)
-      if !mail.subject.nil?
-        mail.subject.toutf8
-      else
-        '(no subject)'
-      end
+      (mail.subject && mail.subject.toutf8) || '(no subject)'
     end
 
     def get_header(mail)
       ['From: ' << (get_from(mail) || '(none)'),
        'To: ' << (get_to(mail) || '(none)'),
-       'Subject: ' << (get_subject(mail) || '(none)'),
+       'Subject: ' << get_subject(mail),
        'Date: ' << (mail.date.to_s || '(none)')
       ].join("\n")
     end
 
     def get_multipart_body(parts)
-      parts.reduce('') do |enum, part|
+      parts.map do |part|
         if part.multipart?
-          enum << '\n---------------\n' unless enum.empty?
-          enum << (get_multipart_body(part.parts) || '')
+          get_multipart_body(part.parts) || ''
         elsif part.content_type.start_with?('text/')
-          enum << '\n---------------\n' unless enum.empty?
-          enum << part.decoded.toutf8
+          part.decoded.toutf8
         end
-        enum
-      end
+      end.compact.join("\n---------------\n")
     end
 
     def get_body(mail)
