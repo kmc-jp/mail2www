@@ -79,22 +79,25 @@ module Mail2www
       ].join("\n")
     end
 
-    def get_body(mail)
-      body = ''
-      if mail.multipart?
-        body = mail.parts.reduce('') do |enum, part|
-          # TODO: Show something for non-text part.
-          if part.content_type.start_with?('text/plain')
-            enum << '\n---------------\n' unless body.empty?
-            enum << part.decoded.toutf8
-          end
-          enum
+    def get_multipart_body(parts)
+      parts.reduce('') do |enum, part|
+        if part.multipart?
+          enum << '\n---------------\n' unless enum.empty?
+          enum << (get_multipart_body(part.parts) || '')
+        elsif part.content_type.start_with?('text/')
+          enum << '\n---------------\n' unless enum.empty?
+          enum << part.decoded.toutf8
         end
-      else
-        body << mail.body.decoded.toutf8
+        enum
       end
+    end
 
-      body
+    def get_body(mail)
+      if mail.multipart?
+        get_multipart_body(mail.parts)
+      elsif mail.body.content_type.start_with?('text/')
+        mail.body.decoded.toutf8
+      end
     end
 
     def cgi_link(query)
