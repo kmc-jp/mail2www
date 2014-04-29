@@ -2,7 +2,7 @@ require 'rubygems'
 require 'bundler/setup'
 
 require 'spec_helper'
-require_relative '../lib/config.rb'
+require_relative '../lib/config.example.rb'
 
 module Mail2www
   describe Config do
