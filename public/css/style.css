@@ -30,6 +30,11 @@ div.pages span.page_sel a{
 	font-weight:bold;
 }
 
+div.per-page {
+    font-size:small;
+    text-align:right;
+}
+
 table#mail_list { min-width:100%; }
 table#mail_list th{ background:#ddd; }
 table#mail_list .num { font-weight:bold; }

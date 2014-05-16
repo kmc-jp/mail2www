@@ -29,6 +29,15 @@
   </table>
 </div>
 
+<div class='main per-page'>
+     <% query = { f: u(folder), p: page } %>
+  per-page:
+  <a href='<%= cgi_link(query.merge({pp: 10}))%>'>10</a>
+  <a href='<%= cgi_link(query.merge({pp: 20}))%>'>20</a>
+  <a href='<%= cgi_link(query.merge({pp: 50}))%>'>50</a>
+  <a href='<%= cgi_link(query.merge({pp: 100}))%>'>100</a>
+</div>
+
 <div class='autopagerize_page_element'>
   <div class='main'>
     <table id="mail_list">
@@ -47,7 +56,7 @@
 </div>
 
 <% if page + 1 < pages %>
-   <a href='<%=cgi_link({:f => u(folder), :p => page+1})%>' rel='next'></a>
+   <a href='<%=cgi_link({:f => u(folder), :p => page+1, :pp => mails_per_page})%>' rel='next'></a>
 <% end %>
 
 <div class='autopagerize_insert_before'></div>
