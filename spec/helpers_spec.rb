@@ -14,7 +14,7 @@ describe Mail2www::Helpers do
     let (:minute) { 60 }
     let (:hour) { 60 * minute }
     let (:day) { 24 * hour }
-    before { Time.stub(:now).and_return(now) }
+    before { allow(Time).to receive(:now).and_return(now) }
 
     context "when diff is less than 60 seconds" do
       it "should return diff in seconds" do
