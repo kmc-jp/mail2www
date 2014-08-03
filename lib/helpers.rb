@@ -93,5 +93,9 @@ module Mail2www
     def cgi_link(query)
       "?#{build_query(query)}"
     end
+
+    def attachment_link(folder, mailnum, filename)
+      "attachment/#{folder}/#{mailnum}/#{filename}"
+    end
   end
 end

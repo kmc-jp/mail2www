@@ -18,6 +18,17 @@
     <pre><%=h(get_header mail)%></pre>
     <hr>
     <pre><%=h(get_body mail)%></pre>
+    <% if !mail.attachments.empty? %>
+      <hr>
+      <pre>添付ファイル:</pre>
+      <ul>
+        <% mail.attachments.each do |file| %>
+          <li><a href='<%= attachment_link(folder, mailnum, file.filename) %>'>
+            <%= file.filename %>
+          </a></li>
+        <% end %>
+      </ul>
+    <% end %>
   <% end %>
 </div>
 <hr>

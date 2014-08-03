@@ -47,6 +47,23 @@ module Mail2www
     get '/favicon.ico' do
     end
 
+    get '/attachment/:folder/:mailnum/:filename' do |folder, mailnum, filename|
+      path = File.join(@config[:mail_dir], folder, mailnum)
+      halt(404, 'Mail not found') unless File.file?(path)
+      mail = Mail.read(path)
+      file = find_attachment_by_name(mail, filename)
+
+      attachment file.filename
+      headers['Content-Type'] = file.mime_type
+      file.decoded
+    end
+
+    def find_attachment_by_name(mail, filename)
+      mail.attachments.find do |attachment|
+        attachment.filename == filename
+      end
+    end
+
     def list(folder, page, mails_per_page)
       mails_path = File.join(@config[:mail_dir], folder)
       halt(404, 'Folder not found') unless File.directory?(mails_path)
@@ -78,7 +95,7 @@ module Mail2www
       mail = Mail.read(path)
 
       @title += "(#{folder || '(none)'}) / #{get_subject(mail)}"
-      vars = { folder: folder, mail: mail }
+      vars = { folder: folder, mail: mail, mailnum: mailnum }
       erb :mail, locals: vars
     end
   end
