@@ -14,6 +14,11 @@ module Mail2www
   class App < Sinatra::Base
     helpers Mail2www::Helpers
 
+    configure :development do
+      Bundler.require :development
+      register Sinatra::Reloader
+    end
+
     set :views, "#{File.dirname(__FILE__)}/../views"
     set :public_folder, "#{File.dirname(__FILE__)}/../public"
 
