@@ -53,7 +53,6 @@ module Mail2www
       mail = Mail.read(path)
       file = find_attachment_by_name(mail, filename)
 
-      attachment file.filename
       headers['Content-Type'] = file.mime_type
       file.decoded
     end
