@@ -17,7 +17,7 @@
   <% else %>
     <pre><%=h(get_header mail)%></pre>
     <hr>
-    <pre><%=h(get_body mail)%></pre>
+    <pre><%=render_mail_body mail%></pre>
     <% if !mail.attachments.empty? %>
       <hr>
       <pre>添付ファイル:</pre>

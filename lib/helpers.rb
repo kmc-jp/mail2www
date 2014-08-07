@@ -105,5 +105,22 @@ module Mail2www
     def attachment_link(folder, mailnum, filename)
       "attachment/#{folder}/#{mailnum}/#{filename}"
     end
+
+    def render_mail_body(mail)
+      body = get_body(mail)
+      urls = URI.extract(body, ["http", "https"])
+      surround_urls_with_a_tag(body, urls)
+    end
+
+    def surround_urls_with_a_tag(text, urls)
+      result = ''
+      urls.each do |url|
+        pre, post = text.split(url, 2)
+        # The not URL parts are escaped here.
+        result += h(pre) + "<a href=\"#{url}\">#{url}</a>"
+        text = post
+      end
+      result
+    end
   end
 end
