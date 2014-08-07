@@ -48,11 +48,19 @@ module Mail2www
     end
 
     def get_from(mail)
-      mail.from_addrs.join(',')
+      begin
+        mail.from_addrs.join(',').encode('utf-8')
+      rescue Encoding::UndefinedConversionError
+        "'From' contains invalid characters"
+      end
     end
 
     def get_to(mail)
-      mail.to_addrs.join(',')
+      begin
+        mail.to_addrs.join(',').encode('utf-8')
+      rescue Encoding::UndefinedConversionError
+        "'To' contains invalid characters"
+      end
     end
 
     def get_subject(mail)
