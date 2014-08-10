@@ -77,8 +77,8 @@ describe Mail2www::Helpers do
       let (:text) { 'link1: http://example.com/ , link2: http://example.jp/ <>' }
       let (:urls) { ['http://example.com/', 'http://example.jp/'] }
       let (:expected) {
-        'link1: <a href="http://example.com/">http://example.com/</a> , ' +
-          'link2: <a href="http://example.jp/">http://example.jp/</a> &lt;&gt;'
+        'link1: <a href="http:&#x2F;&#x2F;example.com&#x2F;">http:&#x2F;&#x2F;example.com&#x2F;</a> , ' +
+          'link2: <a href="http:&#x2F;&#x2F;example.jp&#x2F;">http:&#x2F;&#x2F;example.jp&#x2F;</a> &lt;&gt;'
       }
       it "should surround all URLs in the text with a-tag and escape the text" do
         expect(surround_urls_with_a_tag(text, urls)).to eq(expected)
