@@ -109,11 +109,7 @@ module Mail2www
     def render_mail_body(mail)
       body = get_body(mail)
       urls = URI.extract(body, ["http", "https"])
-      if urls.empty?
-        h body
-      else
-        surround_urls_with_a_tag(body, urls)
-      end
+      surround_urls_with_a_tag(body, urls)
     end
 
     def surround_urls_with_a_tag(text, urls)
@@ -124,7 +120,7 @@ module Mail2www
         result += h(pre) + "<a href=\"#{url}\">#{url}</a>"
         text = post
       end
-      result
+      result + h(text)
     end
   end
 end
