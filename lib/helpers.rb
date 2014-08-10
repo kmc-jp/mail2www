@@ -117,7 +117,7 @@ module Mail2www
       urls.each do |url|
         pre, post = text.split(url, 2)
         # The not URL parts are escaped here.
-        result += h(pre) + "<a href=\"#{url}\">#{url}</a>"
+        result += h(pre) + "<a href=\"#{h(url)}\">#{h(url)}</a>"
         text = post
       end
       result + h(text)
