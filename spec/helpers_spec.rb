@@ -71,4 +71,27 @@ describe Mail2www::Helpers do
       end
     end
   end
+
+  describe "surround_urls_with_a_tag" do
+    context "when a text has URLs" do
+      let (:text) { 'link1: http://example.com/ , link2: http://example.jp/ <>' }
+      let (:urls) { ['http://example.com/', 'http://example.jp/'] }
+      let (:expected) {
+        'link1: <a href="http://example.com/">http://example.com/</a> , ' +
+          'link2: <a href="http://example.jp/">http://example.jp/</a> &lt;&gt;'
+      }
+      it "should surround all URLs in the text with a-tag and escape the text" do
+        expect(surround_urls_with_a_tag(text, urls)).to eq(expected)
+      end
+    end
+
+    context "when a text has no URL" do
+      let (:text) { 'There is no link <>' }
+      let (:urls) { [] }
+      let (:expected) { 'There is no link &lt;&gt;' }
+      it "should return the escaped text" do
+        expect(surround_urls_with_a_tag(text, urls)).to eq(expected)
+      end
+    end
+  end
 end
