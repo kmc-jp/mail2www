@@ -102,10 +102,6 @@ module Mail2www
       "?#{build_query(query)}"
     end
 
-    def attachment_link(folder, mailnum, filename)
-      "attachment/#{folder}/#{mailnum}/#{filename}"
-    end
-
     def render_mail_body(mail)
       body = get_body(mail)
       urls = URI.extract(body, ["http", "https"])

@@ -23,7 +23,7 @@
       <pre>添付ファイル:</pre>
       <ul>
         <% mail.attachments.each do |file| %>
-          <li><a href='<%= attachment_link(folder, mailnum, file.filename) %>'>
+          <li><a href='<%= "#{folder}/#{mailnum}/#{file.filename}" %>'>
             <%= file.filename %>
           </a></li>
         <% end %>

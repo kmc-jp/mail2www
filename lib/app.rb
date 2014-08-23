@@ -48,7 +48,7 @@ module Mail2www
     get '/favicon.ico' do
     end
 
-    get '/attachment/:folder/:mailnum/:filename' do |folder, mailnum, filename|
+    get '/:folder/:mailnum/:filename' do |folder, mailnum, filename|
       path = File.join(@config[:mail_dir], folder, mailnum)
       halt(404, 'Mail not found') unless File.file?(path)
       mail = Mail.read(path)
