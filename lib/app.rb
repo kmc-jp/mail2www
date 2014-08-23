@@ -25,23 +25,18 @@ module Mail2www
 
     def initialize(config)
       @config = config
+      @title = @config[:title]
       super
     end
 
     get '/' do
       redirect to(append_slash(request.url)) if request.path_info.empty?
 
-      @title = @config[:title]
       folder = params['f'] || @config[:folders][0]
-      mailnum = params['m']
       page = params['p'].to_i
       per_page = params['pp'].nil? ? @config[:mails_per_page] : params['pp'].to_i
 
-      if mailnum
-        mail(folder, mailnum)
-      else
-        list(folder, page, per_page)
-      end
+      list(folder, page, per_page)
     end
 
     # Stop annoying errors
@@ -56,6 +51,10 @@ module Mail2www
 
       headers['Content-Type'] = file.mime_type
       file.decoded
+    end
+
+    get '/:folder/:mailnum' do |folder, mailnum|
+      mail(folder, mailnum)
     end
 
     def find_attachment_by_name(mail, filename)

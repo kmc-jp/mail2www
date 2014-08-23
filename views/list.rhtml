@@ -2,9 +2,9 @@
   <% @config[:folders].each do |f| %>
     <% query = {:f => u(f)} %>
     <% if f == folder %>
-      <span class='folder_sel'><a href='<%=cgi_link(query)%>'>[<%=h f%>]</a></span>
+      <span class='folder_sel'><a href='/<%=cgi_link(query)%>'>[<%=h f%>]</a></span>
     <% else %>
-      <span class='folder'><a href='<%=cgi_link(query)%>'><%=h f%></a></span>
+      <span class='folder'><a href='/<%=cgi_link(query)%>'><%=h f%></a></span>
     <% end %>
   <% end %>
 </div>
@@ -43,12 +43,12 @@
     <table id="mail_list">
       <tr><th>time</th><th>no</th><th>from</th><th>subject</th></tr>
       <% mails.each do |num, from, time, subject| %>
-        <% query = {:f => u(folder), :m => num} %>
+        <% url = "#{u(folder)}/#{num}" %>
         <tr>
           <td class="time"><%=h time%></td>
-          <td class="num" ><a href='<%=cgi_link(query)%>'><%=h num%></a></td>
+          <td class="num" ><a href='<%= url %>'><%=h num%></a></td>
           <td class="from"><%=h from%></td>
-          <td class="subj"><a href='<%=cgi_link(query)%>'><%=h subject%></a></td>
+          <td class="subj"><a href='<%= url %>'><%=h subject%></a></td>
         </tr>
       <% end %>
     </table>
