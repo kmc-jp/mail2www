@@ -30,13 +30,7 @@ module Mail2www
     end
 
     get '/' do
-      redirect to(append_slash(request.url)) if request.path_info.empty?
-
-      folder = params['f'] || @config[:folders][0]
-      page = params['p'].to_i
-      per_page = params['pp'].nil? ? @config[:mails_per_page] : params['pp'].to_i
-
-      list(folder, page, per_page)
+      redirect to(@config[:folders][0])
     end
 
     # Stop annoying errors
@@ -55,6 +49,12 @@ module Mail2www
 
     get '/:folder/:mailnum' do |folder, mailnum|
       mail(folder, mailnum)
+    end
+
+    get '/:folder' do |folder|
+      page = params['page'].to_i
+      per_page = params['pp'].nil? ? @config[:mails_per_page] : params['pp'].to_i
+      list(folder, page, per_page)
     end
 
     def find_attachment_by_name(mail, filename)

@@ -1,10 +1,9 @@
 <div class='header'>
   <% @config[:folders].each do |f| %>
-    <% query = {:f => u(f)} %>
     <% if f == folder %>
-      <span class='folder_sel'><a href='/<%=cgi_link(query)%>'>[<%=h f%>]</a></span>
+      <span class='folder_sel'><a href='/<%= f %>'>[<%=h f%>]</a></span>
     <% else %>
-      <span class='folder'><a href='/<%=cgi_link(query)%>'><%=h f%></a></span>
+      <span class='folder'><a href='/<%= f %>'><%=h f%></a></span>
     <% end %>
   <% end %>
 </div>
@@ -14,7 +13,7 @@
   <table>
     <tr><td>
       <% (0...pages).each do |i| %>
-        <% query = {:f => u(folder), :p => i} %>
+        <% query = { :page => i } %>
         <% if i == page %>
           <span class="page_sel">
             <a href='<%= cgi_link(query) %>'>[<%= i %>]</a>
@@ -30,7 +29,7 @@
 </div>
 
 <div class='main per-page'>
-     <% query = { f: u(folder), p: page } %>
+     <% query = { page: page } %>
   per-page:
   <a href='<%= cgi_link(query.merge({pp: 10}))%>'>10</a>
   <a href='<%= cgi_link(query.merge({pp: 20}))%>'>20</a>
@@ -56,7 +55,7 @@
 </div>
 
 <% if page + 1 < pages %>
-   <a href='<%=cgi_link({:f => u(folder), :p => page+1, :pp => mails_per_page})%>' rel='next'></a>
+   <a href='<%=cgi_link({ :page => page+1, :pp => mails_per_page })%>' rel='next'></a>
 <% end %>
 
 <div class='autopagerize_insert_before'></div>

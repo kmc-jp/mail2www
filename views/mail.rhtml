@@ -1,10 +1,9 @@
 <div class='header'>
   <% @config[:folders].each do |f| %>
-    <% query = {:f => u(f)} %>
     <% if f == folder %>
-      <span class='folder_sel'><a href='/<%=cgi_link(query)%>'>[<%=h f%>]</a></span>
+      <span class='folder_sel'><a href='/<%= f %>'>[<%=h f%>]</a></span>
     <% else %>
-      <span class='folder'><a href='/<%=cgi_link(query)%>'><%=h f%></a></span>
+      <span class='folder'><a href='/<%= f %>'><%=h f%></a></span>
     <% end %>
   <% end %>
 </div>
