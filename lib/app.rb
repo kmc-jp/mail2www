@@ -26,6 +26,8 @@ module Mail2www
     def initialize(config)
       @config = config
       @title = @config[:title]
+      @config[:prefix] = ENV['SCRIPT_NAME'] unless
+        ENV['SCRIPT_NAME'].nil? || ENV['SCRIPT_NAME'].empty?
       super
     end
 

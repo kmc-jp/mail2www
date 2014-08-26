@@ -12,6 +12,7 @@ module Mail2www
       self[:mail_dir] ||= File.expand_path(File.dirname(__FILE__)) + '/../mail'
       self[:folders] ||= %w(test admin info other shinkan2014)
       self[:title] ||= 'mail2www'
+      self[:prefix] ||= ''
 
       # system configurations
       self[:mails_per_page] ||= 20
