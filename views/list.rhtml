@@ -1,9 +1,9 @@
 <div class='header'>
   <% @config[:folders].each do |f| %>
     <% if f == folder %>
-      <span class='folder_sel'><a href='/<%= f %>'>[<%=h f%>]</a></span>
+      <span class='folder_sel'><a href='<%=@config[:prefix]%>/<%= f %>'>[<%=h f%>]</a></span>
     <% else %>
-      <span class='folder'><a href='/<%= f %>'><%=h f%></a></span>
+      <span class='folder'><a href='<%=@config[:prefix]%>/<%= f %>'><%=h f%></a></span>
     <% end %>
   <% end %>
 </div>
