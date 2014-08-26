@@ -22,8 +22,9 @@
       <pre>添付ファイル:</pre>
       <ul>
         <% mail.attachments.each do |file| %>
-          <li><a href='<%= "#{mailnum}/#{file.filename}" %>'>
-            <%= file.filename %>
+          <% escaped_name = Rack::Utils.escape_path(file.filename) %>
+          <li><a href='<%= "#{mailnum}/#{escaped_name}" %>'>
+            <%= Rack::Utils.escape_html(file.filename) %>
           </a></li>
         <% end %>
       </ul>

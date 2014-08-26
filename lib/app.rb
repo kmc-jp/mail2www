@@ -22,6 +22,7 @@ module Mail2www
 
     set :views, "#{File.dirname(__FILE__)}/../views"
     set :public_folder, "#{File.dirname(__FILE__)}/../public"
+    set :protection, :except => :path_traversal
 
     def initialize(config)
       @config = config
