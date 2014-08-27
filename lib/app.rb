@@ -22,7 +22,7 @@ module Mail2www
 
     set :views, "#{File.dirname(__FILE__)}/../views"
     set :public_folder, "#{File.dirname(__FILE__)}/../public"
-    set :protection, :except => :path_traversal
+    set :protection, except: :path_traversal
 
     def initialize(config)
       @config = config
@@ -56,7 +56,8 @@ module Mail2www
 
     get '/:folder' do |folder|
       page = params['page'].to_i
-      per_page = params['pp'].nil? ? @config[:mails_per_page] : params['pp'].to_i
+      per_page = @config[:mails_per_page]
+      per_page = params['pp'].to_i unless params['pp'].nil?
       list(folder, page, per_page)
     end
 
@@ -86,7 +87,10 @@ module Mail2www
         [num.to_s, get_from(mail), time, get_subject(mail)]
       end
 
-      vars = { folder: folder, pages: pages, page: page, mails: mails, mails_per_page: mails_per_page }
+      vars = {
+        folder: folder, pages: pages, page: page, mails: mails,
+        mails_per_page: mails_per_page
+      }
       erb :list, locals: vars
     end
 

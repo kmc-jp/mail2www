@@ -48,19 +48,15 @@ module Mail2www
     end
 
     def get_from(mail)
-      begin
-        mail.from_addrs.join(',').encode('utf-8')
-      rescue Encoding::UndefinedConversionError
-        "'From' contains invalid characters"
-      end
+      mail.from_addrs.join(',').encode('utf-8')
+    rescue Encoding::UndefinedConversionError
+      "'From' contains invalid characters"
     end
 
     def get_to(mail)
-      begin
-        mail.to_addrs.join(',').encode('utf-8')
-      rescue Encoding::UndefinedConversionError
-        "'To' contains invalid characters"
-      end
+      mail.to_addrs.join(',').encode('utf-8')
+    rescue Encoding::UndefinedConversionError
+      "'To' contains invalid characters"
     end
 
     def get_subject(mail)
@@ -104,7 +100,7 @@ module Mail2www
 
     def render_mail_body(mail)
       body = get_body(mail)
-      urls = URI.extract(body, ["http", "https"])
+      urls = URI.extract(body, %w(http, https))
       surround_urls_with_a_tag(body, urls)
     end
 

@@ -3,7 +3,7 @@ require 'mail'
 module Mail
   class Ruby19
     class << self
-      alias :__pick_encoding__ :pick_encoding
+      alias_method :__pick_encoding__, :pick_encoding
       def pick_encoding(charset)
         case charset
         when /SHIFT-JIS/
