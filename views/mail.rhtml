@@ -1,16 +1,3 @@
-<div class='header'>
-  <% @config[:folders].each do |f| %>
-    <% query = {:f => u(f)} %>
-    <% if f == folder %>
-      <span class='folder_sel'><a href='<%=cgi_link(query)%>'>[<%=h f%>]</a></span>
-    <% else %>
-      <span class='folder'><a href='<%=cgi_link(query)%>'><%=h f%></a></span>
-    <% end %>
-  <% end %>
-</div>
-
-<hr>
-
 <div class='mail'>
   <% if mail.nil? %>
     mail <%=h mailnum%> was not found.
@@ -23,8 +10,9 @@
       <pre>添付ファイル:</pre>
       <ul>
         <% mail.attachments.each do |file| %>
-          <li><a href='<%= attachment_link(folder, mailnum, file.filename) %>'>
-            <%= file.filename %>
+          <% escaped_name = Rack::Utils.escape_path(file.filename) %>
+          <li><a href='<%= "#{mailnum}/#{escaped_name}" %>'>
+            <%= Rack::Utils.escape_html(file.filename) %>
           </a></li>
         <% end %>
       </ul>

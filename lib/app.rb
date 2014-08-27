@@ -22,33 +22,25 @@ module Mail2www
 
     set :views, "#{File.dirname(__FILE__)}/../views"
     set :public_folder, "#{File.dirname(__FILE__)}/../public"
+    set :protection, :except => :path_traversal
 
     def initialize(config)
       @config = config
+      @title = @config[:title]
+      @config[:prefix] = ENV['SCRIPT_NAME'] unless
+        ENV['SCRIPT_NAME'].nil? || ENV['SCRIPT_NAME'].empty?
       super
     end
 
     get '/' do
-      redirect to(append_slash(request.url)) if request.path_info.empty?
-
-      @title = @config[:title]
-      folder = params['f'] || @config[:folders][0]
-      mailnum = params['m']
-      page = params['p'].to_i
-      per_page = params['pp'].nil? ? @config[:mails_per_page] : params['pp'].to_i
-
-      if mailnum
-        mail(folder, mailnum)
-      else
-        list(folder, page, per_page)
-      end
+      redirect to(@config[:folders][0])
     end
 
     # Stop annoying errors
     get '/favicon.ico' do
     end
 
-    get '/attachment/:folder/:mailnum/:filename' do |folder, mailnum, filename|
+    get '/:folder/:mailnum/:filename' do |folder, mailnum, filename|
       path = File.join(@config[:mail_dir], folder, mailnum)
       halt(404, 'Mail not found') unless File.file?(path)
       mail = Mail.read(path)
@@ -56,6 +48,16 @@ module Mail2www
 
       headers['Content-Type'] = file.mime_type
       file.decoded
+    end
+
+    get '/:folder/:mailnum' do |folder, mailnum|
+      mail(folder, mailnum)
+    end
+
+    get '/:folder' do |folder|
+      page = params['page'].to_i
+      per_page = params['pp'].nil? ? @config[:mails_per_page] : params['pp'].to_i
+      list(folder, page, per_page)
     end
 
     def find_attachment_by_name(mail, filename)
