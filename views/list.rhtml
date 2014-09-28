@@ -2,7 +2,8 @@
   <table>
     <tr><td>
       <% (0...pages).each do |i| %>
-        <% query = { :page => i } %>
+        <% query = { page: i } %>
+        <% query.merge!({ pp: mails_per_page }) if custom_pp %>
         <% if i == page %>
           <span class="page_sel">
             <a href='<%= cgi_link(query) %>'>[<%= i %>]</a>
@@ -20,10 +21,10 @@
 <div class='main per-page'>
      <% query = { page: page } %>
   per-page:
-  <a href='<%= cgi_link(query.merge({pp: 10}))%>'>10</a>
-  <a href='<%= cgi_link(query.merge({pp: 20}))%>'>20</a>
-  <a href='<%= cgi_link(query.merge({pp: 50}))%>'>50</a>
-  <a href='<%= cgi_link(query.merge({pp: 100}))%>'>100</a>
+  <a href='<%= cgi_link(query.merge({ pp: 10 }))%>'>10</a>
+  <a href='<%= cgi_link(query.merge({ pp: 20 }))%>'>20</a>
+  <a href='<%= cgi_link(query.merge({ pp: 50 }))%>'>50</a>
+  <a href='<%= cgi_link(query.merge({ pp: 100 }))%>'>100</a>
 </div>
 
 <div class='autopagerize_page_element'>
@@ -44,7 +45,9 @@
 </div>
 
 <% if page + 1 < pages %>
-   <a href='<%=cgi_link({ :page => page+1, :pp => mails_per_page })%>' rel='next'></a>
+   <% query = { page: page+1 } %>
+   <% query.merge!({ pp: mails_per_page }) if custom_pp %>
+   <a href='<%=cgi_link(query)%>' rel='next'></a>
 <% end %>
 
 <div class='autopagerize_insert_before'></div>

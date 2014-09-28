@@ -89,7 +89,8 @@ module Mail2www
 
       vars = {
         folder: folder, pages: pages, page: page, mails: mails,
-        mails_per_page: mails_per_page
+        mails_per_page: mails_per_page,
+        custom_pp: mails_per_page != @config[:mails_per_page]
       }
       erb :list, locals: vars
     end
