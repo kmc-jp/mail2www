@@ -1,7 +1,6 @@
 #
 # config.rb - mail2www configuration file
 #
-require 'mail'
 
 module Mail2www
   class Config < Hash
