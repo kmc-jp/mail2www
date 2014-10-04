@@ -6,11 +6,11 @@
         <% query.merge!({ pp: mails_per_page }) if custom_pp %>
         <% if i == page %>
           <span class="page_sel">
-            <a href='<%= cgi_link(query) %>'>[<%= i %>]</a>
+            <a href='?<%= q(query) %>'>[<%= i %>]</a>
           </span>
         <% else %>
           <span class="page">
-            <a href='<%= cgi_link(query) %>'><%= i %></a>
+            <a href='?<%= q(query) %>'><%= i %></a>
           </span>
         <% end %>
       <% end %>
@@ -21,10 +21,10 @@
 <div class='main per-page'>
      <% query = { page: page } %>
   per-page:
-  <a href='<%= cgi_link(query.merge({ pp: 10 }))%>'>10</a>
-  <a href='<%= cgi_link(query.merge({ pp: 20 }))%>'>20</a>
-  <a href='<%= cgi_link(query.merge({ pp: 50 }))%>'>50</a>
-  <a href='<%= cgi_link(query.merge({ pp: 100 }))%>'>100</a>
+  <a href='?<%= q(query.merge({ pp: 10 }))%>'>10</a>
+  <a href='?<%= q(query.merge({ pp: 20 }))%>'>20</a>
+  <a href='?<%= q(query.merge({ pp: 50 }))%>'>50</a>
+  <a href='?<%= q(query.merge({ pp: 100 }))%>'>100</a>
 </div>
 
 <div class='autopagerize_page_element'>
@@ -32,12 +32,12 @@
     <table id="mail_list">
       <tr><th>time</th><th>no</th><th>from</th><th>subject</th></tr>
       <% mails.each do |num, from, time, subject| %>
-        <% url = "#{u(folder)}/#{num}" %>
+        <% url = "#{escape(folder)}/#{num}" %>
         <tr>
-          <td class="time"><%=h time%></td>
-          <td class="num" ><a href='<%= url %>'><%=h num%></a></td>
+          <td class="time"><%= h(time) %></td>
+          <td class="num" ><a href='<%= url %>'><%= h(num) %></a></td>
           <td class="from"><%=h from%></td>
-          <td class="subj"><a href='<%= url %>'><%=h subject%></a></td>
+          <td class="subj"><a href='<%= url %>'><%= h(subject) %></a></td>
         </tr>
       <% end %>
     </table>
@@ -47,7 +47,7 @@
 <% if page + 1 < pages %>
    <% query = { page: page+1 } %>
    <% query.merge!({ pp: mails_per_page }) if custom_pp %>
-   <a href='<%=cgi_link(query)%>' rel='next'></a>
+   <a href='?<%= q(query) %>' rel='next'></a>
 <% end %>
 
 <div class='autopagerize_insert_before'></div>

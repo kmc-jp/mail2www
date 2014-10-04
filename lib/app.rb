@@ -5,7 +5,6 @@ require 'bundler/setup'
 require 'time'
 require 'erb'
 require 'mail'
-require 'kconv'
 require 'sinatra/base'
 
 require_relative 'helpers'

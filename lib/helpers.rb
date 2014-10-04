@@ -2,18 +2,17 @@
 
 require 'rubygems'
 require 'bundler/setup'
+require 'kconv'
 require 'rack'
 require 'sinatra/base'
 
 module Mail2www
   module Helpers
-    def h(str)
-      Rack::Utils.escape_html(str)
-    end
-
-    def u(str)
-      Rack::Utils.escape(str)
-    end
+    include Rack::Utils
+    alias_method :h, :escape_html
+    alias_method :escape, :escape
+    alias_method :escape_path, :escape_path
+    alias_method :q, :build_query
 
     def how_old(t)
       diff = Time.now - t
@@ -60,7 +59,9 @@ module Mail2www
     end
 
     def get_subject(mail)
-      (mail.subject && mail.subject.toutf8) || '(no subject)'
+      mail.subject ? mail.subject.encode('utf-8') : '(no subject)'
+    rescue Encoding::UndefinedConversionError
+      '(no subject)'
     end
 
     def get_date(mail)
@@ -92,10 +93,6 @@ module Mail2www
       else
         mail.body.decoded.toutf8
       end
-    end
-
-    def cgi_link(query)
-      "?#{build_query(query)}"
     end
 
     def render_mail_body(mail)

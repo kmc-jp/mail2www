@@ -1,18 +1,18 @@
 <div class='mail'>
   <% if mail.nil? %>
-    mail <%=h mailnum%> was not found.
+    mail <%= h(mailnum) %> was not found.
   <% else %>
-    <pre><%=h(get_header mail)%></pre>
+    <pre><%= h(get_header mail) %></pre>
     <hr>
-    <pre><%=render_mail_body mail%></pre>
+    <pre><%= render_mail_body(mail) %></pre>
     <% if !mail.attachments.empty? %>
       <hr>
       <pre>添付ファイル:</pre>
       <ul>
         <% mail.attachments.each do |file| %>
-          <% escaped_name = Rack::Utils.escape_path(file.filename) %>
+          <% escaped_name = escape_path(file.filename) %>
           <li><a href='<%= "#{mailnum}/#{escaped_name}" %>'>
-            <%= Rack::Utils.escape_html(file.filename) %>
+            <%= h(file.filename) %>
           </a></li>
         <% end %>
       </ul>
