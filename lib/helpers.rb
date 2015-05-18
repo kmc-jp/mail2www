@@ -5,6 +5,7 @@ require 'bundler/setup'
 require 'kconv'
 require 'rack'
 require 'sinatra/base'
+require 'string/scrub'
 
 module Mail2www
   module Helpers
@@ -47,19 +48,19 @@ module Mail2www
     end
 
     def get_from(mail)
-      mail.from_addrs.join(',').encode('utf-8')
+      mail.from_addrs.join(',').encode('utf-8').scrub
     rescue Encoding::UndefinedConversionError
       "'From' contains invalid characters"
     end
 
     def get_to(mail)
-      mail.to_addrs.join(',').encode('utf-8')
+      mail.to_addrs.join(',').encode('utf-8').scrub
     rescue Encoding::UndefinedConversionError
       "'To' contains invalid characters"
     end
 
     def get_subject(mail)
-      mail.subject ? mail.subject.encode('utf-8') : '(no subject)'
+      mail.subject ? mail.subject.encode('utf-8').scrub : '(no subject)'
     rescue Encoding::UndefinedConversionError
       '(no subject)'
     end
@@ -82,7 +83,7 @@ module Mail2www
         if part.multipart?
           get_multipart_body(part.parts) || ''
         elsif part.content_type.start_with?('text/')
-          part.decoded.toutf8
+          part.decoded.toutf8.scrub
         end
       end.compact.join("\n---------------\n")
     end
