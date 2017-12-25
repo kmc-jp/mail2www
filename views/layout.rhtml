@@ -8,13 +8,24 @@
 
   <body>
     <div class='header'>
-      <% @config[:folders].each do |f| %>
-        <% if f == folder %>
-          <span class='folder_sel'><a href='<%=@config[:prefix]%>/<%= f %>'>[<%= h(f) %>]</a></span>
-        <% else %>
-          <span class='folder'><a href='<%=@config[:prefix]%>/<%= f %>'><%= h(f) %></a></span>
+      <div class='folders'>
+        <% @config[:folders].each do |f| %>
+          <% if f == folder %>
+            <span class='folder_sel'><a href='<%=@config[:prefix]%>/<%= f %>'>[<%= h(f) %>]</a></span>
+          <% else %>
+            <span class='folder'><a href='<%=@config[:prefix]%>/<%= f %>'><%= h(f) %></a></span>
+          <% end %>
         <% end %>
-      <% end %>
+      </div>
+
+      <div class='search'>
+        <form action='https://inside.kmc.gr.jp/heineken/search/mail' method='get'>
+          <td>
+            <input name='query' type='text' value=''>
+            <button type='submit'>検索</button>
+          </td>
+        </form>
+      </div>
     </div>
     <hr>
 

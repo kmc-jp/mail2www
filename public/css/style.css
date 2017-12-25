@@ -4,16 +4,20 @@ hr{
 	border:1px dashed black;
 }
 
-div.header {
+div.folders {
 	padding:3pt;
 }
-div.header .folder a{
+div.folders .folder a{
 	color:black;
 	text-decoration:underline;
 }
-div.header .folder_sel a{
+div.folders .folder_sel a{
 	color:orange;
 	font-weight:bold;
+}
+
+div.search {
+	padding:3pt;
 }
 
 div.main { width:80%; margin:auto; }
