@@ -52,3 +52,6 @@ div.footer{
 	padding:2pt;
 }
 
+.mail pre {
+  white-space: pre-wrap;
+}
