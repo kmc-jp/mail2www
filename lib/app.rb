@@ -2,10 +2,12 @@
 
 require 'rubygems'
 require 'bundler/setup'
+require 'securerandom'
 require 'time'
 require 'erb'
 require 'mail'
 require 'sinatra/base'
+require 'net/smtp'
 
 require_relative 'helpers'
 require_relative 'mail_extension'
@@ -39,10 +41,8 @@ module Mail2www
     get '/favicon.ico' do
     end
 
-    get '/:folder/:mailnum/:filename' do |folder, mailnum, filename|
-      path = File.join(@config[:mail_dir], folder, mailnum)
-      halt(404, 'Mail not found') unless File.file?(path)
-      mail = Mail.read(path)
+    get '/:folder/:mailnum/attachment/:filename' do |folder, mailnum, filename|
+      mail = read_mail(folder, mailnum)
       file = find_attachment_by_name(mail, filename)
 
       headers['Content-Type'] = file.mime_type
@@ -53,12 +53,21 @@ module Mail2www
       mail(folder, mailnum)
     end
 
+    post '/:folder/:mailnum/forward' do |folder, mailnum|
+      to = params.fetch(:to)
+      forward_mail(folder, mailnum, to: to)
+
+      redirect to("/#{folder}/#{mailnum}")
+    end
+
     get '/:folder' do |folder|
       page = params['page'].to_i
       per_page = @config[:mails_per_page]
       per_page = params['pp'].to_i unless params['pp'].nil?
       list(folder, page, per_page)
     end
+
+    private
 
     def find_attachment_by_name(mail, filename)
       mail.attachments.find do |attachment|
@@ -94,15 +103,73 @@ module Mail2www
       erb :list, locals: vars
     end
 
-    def mail(folder, mailnum)
-      path = File.join(@config[:mail_dir], folder, mailnum)
-      halt(404, 'File not found') unless File.file?(path)
+    def mail_path(folder, mailnum)
+      File.join(@config[:mail_dir], folder, mailnum)
+    end
 
-      mail = Mail.read(path)
+    def read_mail(folder, mailnum)
+      Mail.read(mail_path(folder, mailnum))
+    end
+
+    def mail(folder, mailnum)
+      mail = read_mail(folder, mailnum)
 
       @title += "(#{folder || '(none)'}) / #{get_subject(mail)}"
-      vars = { folder: folder, mail: mail, mailnum: mailnum }
+      vars = {
+        folder: folder,
+        mail: mail,
+        mailnum: mailnum,
+        remote_user: remote_user,
+      }
       erb :mail, locals: vars
+    end
+
+    def generate_message_id(mailname)
+      "<#{Time.now.strftime('%Y%m%d%H%M%S')}.#{SecureRandom.alphanumeric(16)}@#{mailname}>"
+    end
+
+    def forward_mail(folder, mailnum, to:)
+      # Care should be taken not to modify any single byte in the message body.
+      # Doing so will make cryptographically signed (DKIM) mails unverifiable.
+      # TODO: It might be necessary to implement "From munging" for non-DKIM messages.
+
+      validate_local_part!(to)
+      mailname = @config.fetch(:mailname)
+      to = "#{to}@#{mailname}"
+      bounce_to = @config.fetch(:bounce_to)
+      bounce_to = bounce_to.call(to) if bounce_to.respond_to?(:call)
+
+      message = IO.read(mail_path(folder, mailnum)).sub(/\AFrom .*?\n/, '')  # first line may contain envelope header
+
+      resent_fields = {
+        'List-Id' => "<#{folder}.mail2www.#{mailname}>",
+        'Resent-From' => to,
+        'Resent-To' => to,
+        'Resent-Date' => Time.now.rfc2822,
+        'Resent-Message-ID' => generate_message_id(mailname),
+      }
+      message.prepend(resent_fields.map {|name, value| "#{name}: #{value}\r\n" }.join)
+
+      smtp_envelope_from = bounce_to
+      smtp_envelope_to = to
+      Net::SMTP.start(@config.fetch(:smtp_server)) do |smtp|
+        smtp.send_message(
+          message,
+          smtp_envelope_from,
+          smtp_envelope_to,
+        )
+      end
+    end
+
+    def validate_local_part!(local_part)
+      unless /\A[a-zA-z0-9-]+\z/ =~ local_part
+        fail 'Invalid local-part'
+      end
+      local_part
+    end
+
+    def remote_user
+      request.env['REMOTE_USER'] || request.env['HTTP_X_FORWARDED_USER']
     end
   end
 end

@@ -1,7 +1,13 @@
 <div class='mail'>
-  <% if mail.nil? %>
+  <% unless mail %>
     mail <%= h(mailnum) %> was not found.
   <% else %>
+    <% if remote_user %>
+      <form action="<%= "#{mailnum}/forward" %>" method="POST">
+        <input type="hidden" name="to" value="<%= h(remote_user) %>">
+        <input type="submit" value="<%= h(remote_user) %>へ転送">
+      </form>
+    <% end %>
     <pre><%= h(get_header mail) %></pre>
     <hr>
     <pre><%= render_mail_body(mail) %></pre>
@@ -11,7 +17,7 @@
       <ul>
         <% mail.attachments.each do |file| %>
           <% escaped_name = escape_path(file.filename) %>
-          <li><a href='<%= "#{mailnum}/#{escaped_name}" %>'>
+          <li><a href='<%= "#{mailnum}/attachment/#{escaped_name}" %>'>
             <%= h(file.filename) %>
           </a></li>
         <% end %>

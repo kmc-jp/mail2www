@@ -13,6 +13,11 @@ module Mail2www
       self[:title] ||= 'mail2www'
       self[:prefix] ||= ''
 
+      # smtp configurations
+      self[:smtp_server] = 'smtp.example.com'
+      self[:mailname] = 'example.com'
+      self[:bounce_to] = 'bounce@example.com'
+
       # system configurations
       self[:mails_per_page] ||= 20
     end
