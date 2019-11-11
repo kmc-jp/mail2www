@@ -59,6 +59,12 @@ module Mail2www
       "'To' contains invalid characters"
     end
 
+    def get_cc(mail)
+      mail.cc_addrs.join(',').encode('utf-8').scrub
+    rescue Encoding::UndefinedConversionError
+      "'Cc' contains invalid characters"
+    end
+
     def get_subject(mail)
       mail.subject ? mail.subject.encode('utf-8').scrub : '(no subject)'
     rescue Encoding::UndefinedConversionError
@@ -71,10 +77,11 @@ module Mail2www
     end
 
     def get_header(mail)
-      ['From: ' << (get_from(mail) || '(none)'),
-       'To: ' << (get_to(mail) || '(none)'),
-       'Subject: ' << get_subject(mail),
-       'Date: ' << (get_date(mail) || '(none)')
+      ['From: ' + (get_from(mail) || '(none)'),
+       'To: ' + (get_to(mail) || '(none)'),
+       'Cc: ' + (get_cc(mail) || '(none)'),
+       'Subject: ' + get_subject(mail),
+       'Date: ' + (get_date(mail) || '(none)')
       ].join("\n")
     end
 
