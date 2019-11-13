@@ -109,6 +109,8 @@ module Mail2www
 
     def read_mail(folder, mailnum)
       Mail.read(mail_path(folder, mailnum))
+    rescue Errno::ENOENT
+      halt 404, 'Mail not found'
     end
 
     def mail(folder, mailnum)
@@ -139,7 +141,11 @@ module Mail2www
       bounce_to = @config.fetch(:bounce_to)
       bounce_to = bounce_to.call(to) if bounce_to.respond_to?(:call)
 
-      message = IO.read(mail_path(folder, mailnum)).sub(/\AFrom .*?\n/, '')  # first line may contain envelope header
+      begin
+        message = IO.read(mail_path(folder, mailnum)).sub(/\AFrom .*?\n/, '')  # first line may contain envelope header
+      rescue Errno::ENOENT
+        halt 404, 'Mail not found'
+      end
 
       resent_fields = {
         'List-Id' => "<#{folder}.mail2www.#{mailname}>",
