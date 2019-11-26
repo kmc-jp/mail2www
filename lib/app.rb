@@ -168,7 +168,7 @@ module Mail2www
     end
 
     def validate_local_part!(local_part)
-      unless /\A[a-zA-z0-9-]+\z/ =~ local_part
+      unless /\A[a-zA-Z0-9-]+\z/ =~ local_part
         fail 'Invalid local-part'
       end
       local_part
