@@ -53,6 +53,10 @@ module Mail2www
       mail(folder, mailnum)
     end
 
+    get '/:folder/:mailnum/source' do |folder, mailnum|
+      mail_raw(folder, mailnum)
+    end
+
     post '/:folder/:mailnum/forward' do |folder, mailnum|
       to = params.fetch(:to)
       forward_mail(folder, mailnum, to: to)
@@ -132,6 +136,22 @@ module Mail2www
         remote_user: remote_user,
       }
       erb :mail, locals: vars
+    end
+
+    def mail_raw(folder, mailnum)
+      begin
+        message = IO.read(mail_path(folder, mailnum))
+      rescue Errno::ENOENT
+        halt 404, 'Mail not found'
+      end
+
+      @title += "(#{folder || '(none)'}) / #{mailnum}"
+      vars = {
+        folder: folder,
+        mailnum: mailnum,
+        message: message,
+      }
+      erb :rawmail, locals: vars
     end
 
     def generate_message_id(mailname)

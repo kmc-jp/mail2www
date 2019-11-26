@@ -2,12 +2,17 @@
   <% unless mail %>
     mail <%= h(mailnum) %> was not found.
   <% else %>
+    <div class='mail-actions'>
     <% if remote_user %>
-      <form action="<%= "#{mailnum}/forward" %>" method="POST">
+      <form action="<%= h("#{mailnum}/forward") %>" method="POST">
         <input type="hidden" name="to" value="<%= h(remote_user) %>">
         <input type="submit" value="<%= h(remote_user) %>へ転送">
       </form>
     <% end %>
+    <form action="<%= h("#{mailnum}/source") %>" method="GET">
+      <input type="submit" value="ソースを表示">
+    </form>
+    </div>
     <pre><%= h(get_header mail) %></pre>
     <hr>
     <pre><%= render_mail_body(mail) %></pre>
