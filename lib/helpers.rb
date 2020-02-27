@@ -5,7 +5,6 @@ require 'bundler/setup'
 require 'kconv'
 require 'rack'
 require 'sinatra/base'
-require 'string/scrub'
 
 module Mail2www
   module Helpers

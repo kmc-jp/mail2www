@@ -4,7 +4,6 @@ gem 'bundler'
 gem 'rack'
 gem 'mail'
 gem 'sinatra'
-gem 'string-scrub'
 
 group :development, :test do
   gem 'thin'
