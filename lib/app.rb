@@ -108,7 +108,15 @@ module Mail2www
     end
 
     def read_mail(folder, mailnum)
-      Mail.read(mail_path(folder, mailnum))
+      path = mail_path(folder, mailnum)
+      s = IO.binread(path)
+      s2 = s.clone
+      s.force_encoding("utf-8")
+      if s.valid_encoding?
+        Mail.read_from_string(s)
+      else
+        Mail.read_from_string(s2)
+      end
     rescue Errno::ENOENT
       halt 404, 'Mail not found'
     end
