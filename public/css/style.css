@@ -52,6 +52,10 @@ div.footer{
 	padding:2pt;
 }
 
+.mail-actions form {
+  display: inline;
+}
+
 .mail pre {
   white-space: pre-wrap;
 }
