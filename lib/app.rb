@@ -141,7 +141,7 @@ module Mail2www
 
     def mail_raw(folder, mailnum, download:)
       begin
-        message = IO.read(mail_path(folder, mailnum))
+        message = IO.binread(mail_path(folder, mailnum))
       rescue Errno::ENOENT
         halt 404, 'Mail not found'
       end
@@ -149,7 +149,7 @@ module Mail2www
       if download
         content_type :eml
         attachment "#{folder}-#{mailnum}.eml"
-        message
+        message.sub(/\AFrom .*?\n/, '')  # first line may contain envelope header
       else
         @title += "(#{folder || '(none)'}) / #{mailnum}"
         vars = {
