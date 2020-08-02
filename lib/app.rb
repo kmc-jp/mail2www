@@ -54,7 +54,8 @@ module Mail2www
     end
 
     get '/:folder/:mailnum/source' do |folder, mailnum|
-      mail_raw(folder, mailnum)
+      download = !params.fetch(:download, '').empty?
+      mail_raw(folder, mailnum, download: download)
     end
 
     post '/:folder/:mailnum/forward' do |folder, mailnum|
@@ -138,20 +139,26 @@ module Mail2www
       erb :mail, locals: vars
     end
 
-    def mail_raw(folder, mailnum)
+    def mail_raw(folder, mailnum, download:)
       begin
         message = IO.read(mail_path(folder, mailnum))
       rescue Errno::ENOENT
         halt 404, 'Mail not found'
       end
 
-      @title += "(#{folder || '(none)'}) / #{mailnum}"
-      vars = {
-        folder: folder,
-        mailnum: mailnum,
-        message: message,
-      }
-      erb :rawmail, locals: vars
+      if download
+        content_type :eml
+        attachment "#{folder}-#{mailnum}.eml"
+        message
+      else
+        @title += "(#{folder || '(none)'}) / #{mailnum}"
+        vars = {
+          folder: folder,
+          mailnum: mailnum,
+          message: message,
+        }
+        erb :rawmail, locals: vars
+      end
     end
 
     def generate_message_id(mailname)
