@@ -155,7 +155,7 @@ module Mail2www
         vars = {
           folder: folder,
           mailnum: mailnum,
-          message: message,
+          message: message.force_encoding('utf-8').scrub{|bs| "<#{bs.unpack1('H*')}>" },
         }
         erb :rawmail, locals: vars
       end
