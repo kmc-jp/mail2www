@@ -41,11 +41,24 @@ module Mail2www
     get '/favicon.ico' do
     end
 
+    SAFE_ATTACHMENT_CONTENT_TYPES = %w[
+      application/pdf
+      image/jpeg
+      image/png
+    ]
+
     get '/:folder/:mailnum/attachment/:filename' do |folder, mailnum, filename|
       mail = read_mail(folder, mailnum)
-      file = find_attachment_by_name(mail, filename)
+      file = find_attachment_by_name(mail, filename) or halt(404, 'Attachment not found')
 
-      headers['Content-Type'] = file.mime_type
+      if SAFE_ATTACHMENT_CONTENT_TYPES.include?(file.mime_type)
+        headers['Content-Type'] = file.mime_type
+      else
+        headers['Content-Type'] = 'application/octet-stream'
+        headers['Content-Disposition'] = 'attachment'
+      end
+      headers['X-Content-Type-Options'] = 'nosniff'
+
       file.decoded
     end
 
