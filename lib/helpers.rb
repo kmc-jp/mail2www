@@ -84,21 +84,27 @@ module Mail2www
       ].join("\n")
     end
 
-    def get_multipart_body(parts)
-      parts.map do |part|
-        if part.multipart?
-          get_multipart_body(part.parts) || ''
-        elsif part.content_type.start_with?('text/')
-          part.decoded.toutf8.scrub
-        end
-      end.compact.join("\n---------------\n")
+    def body_text(message)
+      raw_text = message.body.decoded
+
+      charset = message.content_type_parameters['charset'] || Kconv.guess(raw_text)
+      encoding =
+        begin
+          Encoding.find(charset) if charset
+        rescue ArgumentError
+          nil
+        end || Encoding.UTF_8
+
+      raw_text.force_encoding(encoding).encode('utf-8', invalid: :replace, undef: :replace)
     end
 
-    def get_body(mail)
-      if mail.multipart?
-        get_multipart_body(mail.parts)
+    def get_body(message)
+      if message.multipart?
+        message.parts.map do |part|
+          get_body(part) if part.mime_type.start_with?('text/')
+        end.compact.join("\n---------------\n")
       else
-        mail.body.decoded.toutf8
+        body_text(message)
       end
     end
 
