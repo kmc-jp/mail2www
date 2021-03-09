@@ -87,24 +87,27 @@ module Mail2www
     def body_text(message)
       raw_text = message.body.decoded
 
-      charset = message.content_type_parameters['charset'] || Kconv.guess(raw_text)
+      if message.content_type
+        charset = message.content_type_parameters['charset']
+      end
+
       encoding =
         begin
           Encoding.find(charset) if charset
         rescue ArgumentError
           nil
-        end || Encoding.UTF_8
+        end || Kconv.guess(raw_text) || Encoding.UTF_8
 
       raw_text.force_encoding(encoding).encode('utf-8', invalid: :replace, undef: :replace)
     end
 
-    def get_body(message)
+    def get_body(message, toplevel: true)
       if message.multipart?
         message.parts.map do |part|
-          get_body(part)
+          get_body(part, toplevel: false)
         end.compact.join("\n---------------\n")
       else
-        body_text(message) if message.mime_type.start_with?('text/')
+        body_text(message) if toplevel || message.mime_type&.start_with?('text/')
       end
     end
 
