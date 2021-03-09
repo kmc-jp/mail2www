@@ -101,10 +101,10 @@ module Mail2www
     def get_body(message)
       if message.multipart?
         message.parts.map do |part|
-          get_body(part) if part.mime_type.start_with?('text/')
+          get_body(part)
         end.compact.join("\n---------------\n")
       else
-        body_text(message)
+        body_text(message) if message.mime_type.start_with?('text/')
       end
     end
 
