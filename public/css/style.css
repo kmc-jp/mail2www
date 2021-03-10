@@ -52,6 +52,12 @@ div.footer{
 	padding:2pt;
 }
 
+.mail-virus {
+  background-color: red;
+  border: yellow 2px solid;
+  color: black;
+}
+
 .mail-actions form {
   display: inline;
 }

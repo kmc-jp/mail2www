@@ -2,6 +2,11 @@
   <% unless mail %>
     mail <%= h(mailnum) %> was not found.
   <% else %>
+    <% if virus = virus_detected?(mail) %>
+    <div class='mail-virus'>
+    このメールにはウイルスが検出されています: <%= h(virus) %>
+    </div>
+    <% end %>
     <div class='mail-actions'>
     <% if remote_user %>
       <form action="<%= h("#{mailnum}/forward") %>" method="POST">
