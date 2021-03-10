@@ -2,6 +2,11 @@
   <% unless mail %>
     mail <%= h(mailnum) %> was not found.
   <% else %>
+    <% if virus = virus_detected?(mail) %>
+    <div class='mail-virus'>
+    このメールにはウイルスが検出されています: <%= h(virus) %>
+    </div>
+    <% end %>
     <div class='mail-actions'>
     <% if remote_user %>
       <form action="<%= h("#{mailnum}/forward") %>" method="POST">
@@ -19,7 +24,7 @@
     <% if !mail.attachments.empty? %>
       <hr>
       <pre>添付ファイル:</pre>
-      <ul>
+      <ul class='mail-attachments'>
         <% mail.attachments.each do |file| %>
           <% escaped_name = escape_path(file.filename) %>
           <li><a href='<%= "#{mailnum}/attachment/#{escaped_name}" %>'>
@@ -27,6 +32,15 @@
           </a></li>
         <% end %>
       </ul>
+      <% if virus %>
+      <script>
+      for(const link of document.querySelectorAll('.mail-attachments a')) {
+        link.addEventListener('click', function(e) {
+          if(!confirm('この添付ファイルは危険な可能性があります。本当にダウンロードしますか？')) e.preventDefault();
+        })
+      }
+      </script>
+      <% end %>
     <% end %>
   <% end %>
 </div>

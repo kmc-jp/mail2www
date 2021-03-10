@@ -127,5 +127,12 @@ module Mail2www
       end
       result + h(text)
     end
+
+    def virus_detected?(mail)
+      virus = [*mail.header['X-Virus']]
+      return if virus.empty?
+
+      virus.map(&:value).join(', ')
+    end
   end
 end
