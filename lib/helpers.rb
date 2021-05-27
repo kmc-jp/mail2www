@@ -128,6 +128,11 @@ module Mail2www
       result + h(text)
     end
 
+    def spam?(mail)
+      spam = [*mail.header['X-Spam']]
+      spam.any? {|v| v.value.upcase == 'YES' }
+    end
+
     def virus_detected?(mail)
       virus = [*mail.header['X-Virus']]
       return if virus.empty?

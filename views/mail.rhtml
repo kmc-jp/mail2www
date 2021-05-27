@@ -3,9 +3,10 @@
     mail <%= h(mailnum) %> was not found.
   <% else %>
     <% if virus = virus_detected?(mail) %>
-    <div class='mail-virus'>
-    このメールにはウイルスが検出されています: <%= h(virus) %>
-    </div>
+    <div class='mail-virus mail-alert'>このメールにはウイルスが検出されています: <%= h(virus) %></div>
+    <% end %>
+    <% if spam = spam?(mail) %>
+    <div class='mail-spam mail-alert'>このメールはスパムメールと判定されています</div>
     <% end %>
     <div class='mail-actions'>
     <% if remote_user %>
@@ -20,7 +21,7 @@
     </div>
     <pre><%= h(get_header mail) %></pre>
     <hr>
-    <pre><%= render_mail_body(mail) %></pre>
+    <pre class='mail-body'><%= render_mail_body(mail) %></pre>
     <% if !mail.attachments.empty? %>
       <hr>
       <pre>添付ファイル:</pre>
@@ -32,15 +33,22 @@
           </a></li>
         <% end %>
       </ul>
-      <% if virus %>
-      <script>
-      for(const link of document.querySelectorAll('.mail-attachments a')) {
-        link.addEventListener('click', function(e) {
-          if(!confirm('この添付ファイルは危険な可能性があります。本当にダウンロードしますか？')) e.preventDefault();
-        })
-      }
-      </script>
-      <% end %>
+    <% end %>
+
+    <% if virus || spam %>
+    <script>
+    for(const link of document.querySelectorAll('.mail-body a')) {
+      link.addEventListener('click', function(e) {
+        if(!confirm('このリンクは危険な可能性があります。本当に開きますか？')) e.preventDefault();
+      })
+    }
+
+    for(const link of document.querySelectorAll('.mail-attachments a')) {
+      link.addEventListener('click', function(e) {
+        if(!confirm('この添付ファイルは危険な可能性があります。本当にダウンロードしますか？')) e.preventDefault();
+      })
+    }
+    </script>
     <% end %>
   <% end %>
 </div>
