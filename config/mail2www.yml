@@ -1,7 +1,7 @@
 development:
   title: mail2www
 
-  mail_dir: tmp/mail
+  mail_dir: spec/fixtures/mail
   folders:
     - test
     - admin

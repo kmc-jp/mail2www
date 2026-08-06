@@ -1,14 +1,12 @@
 require 'bundler/setup'
-require 'fileutils'
 require 'json'
 require 'rack/mock'
-require 'tmpdir'
 
 require_relative 'spec_helper'
 require_relative '../lib/app'
 
 describe Mail2www::App do
-  let(:mail_root) { Dir.mktmpdir('mail2www-spec') }
+  let(:mail_root) { File.expand_path('fixtures/mail', __dir__) }
   let(:app_class) do
     Class.new(described_class).tap do |app|
       app.set :mail_dir, mail_root
@@ -20,22 +18,6 @@ describe Mail2www::App do
     end
   end
   let(:request) { Rack::MockRequest.new(app_class.new) }
-
-  before do
-    FileUtils.mkdir_p(File.join(mail_root, 'public'))
-    File.binwrite(File.join(mail_root, 'public', '1'), <<~MAIL)
-      From sender@example.test Thu Jan 01 00:00:00 2026
-      From: Sender <sender@example.test>
-      To: archive@example.test
-      Subject: API test
-      Date: Thu, 1 Jan 2026 00:00:00 +0000
-      Content-Type: text/plain; charset=UTF-8
-
-      Hello from the API.
-    MAIL
-  end
-
-  after { FileUtils.remove_entry(mail_root) }
 
   it 'reports API health without redirecting' do
     response = request.get('/api')
