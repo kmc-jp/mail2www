@@ -52,25 +52,24 @@ function FolderPage() {
   if (query.isPending) return <Loading />
   if (query.isError) return <PageError error={query.error} />
   const data = query.data
-  return <main className="content">
-    <div className="list-controls">
+  return <>
+    <div className="pages main"><table><tbody><tr><td>
       <Pagination folder={folder} page={data.page} pages={data.pages} perPage={data.per_page} />
-      <label>Per page <select value={data.per_page} onChange={(event) => {
-        void router.navigate({ to: '/$folder', params: { folder }, search: { page: 0, perPage: Number(event.target.value) } })
-      }}>
-        {[10, 20, 50, 100].map((amount) => <option key={amount}>{amount}</option>)}
-      </select></label>
+    </td></tr></tbody></table></div>
+    <div className="main per-page">per-page:{' '}
+      {[10, 20, 50, 100].map((amount) => <Link key={amount} to="/$folder" params={{ folder }} search={{ page: 0, perPage: amount }}>{amount}{' '}</Link>)}
     </div>
-    <div className="table-wrap"><table className="mail-list">
+    <div className="autopagerize_page_element"><div className="main"><table id="mail_list">
       <thead><tr><th>Time</th><th>No.</th><th>From</th><th>Subject</th></tr></thead>
       <tbody>{data.messages.map((message) => <tr key={message.number}>
         <td className="time">{message.date ? new Date(message.date).toLocaleDateString() : '—'} <small>{message.age}</small></td>
-        <td><Link to="/$folder/$number" params={{ folder, number: message.number }}>{message.number}</Link></td>
-        <td>{message.from || '—'}</td>
-        <td><Link to="/$folder/$number" params={{ folder, number: message.number }}>{message.subject}</Link></td>
+        <td className="num"><Link to="/$folder/$number" params={{ folder, number: message.number }}>{message.number}</Link></td>
+        <td className="from">{message.from || '—'}</td>
+        <td className="subj"><Link to="/$folder/$number" params={{ folder, number: message.number }}>{message.subject}</Link></td>
       </tr>)}</tbody>
-    </table></div>
-  </main>
+    </table></div></div>
+    <div className="autopagerize_insert_before" />
+  </>
 }
 
 const messageRoute = createRoute({
@@ -88,27 +87,27 @@ function MessagePage() {
   const mail = query.data
   const dangerous = mail.spam || Boolean(mail.virus)
   const confirmRisk = () => !dangerous || window.confirm('This content may be dangerous. Continue?')
-  return <main className="content message">
-    {mail.virus && <div className="alert">A virus was detected in this message: {mail.virus}</div>}
-    {mail.spam && <div className="alert">This message was classified as spam.</div>}
-    <div className="actions">
-      {mail.remote_user && <button disabled={forward.isPending} onClick={() => forward.mutate(mail.remote_user!)}>
+  const header = Object.entries(mail.headers).map(([name, value]) => `${name[0].toUpperCase()}${name.slice(1)}: ${value || '(none)'}`).join('\n')
+  return <div className="mail">
+    {mail.virus && <div className="mail-virus mail-alert">A virus was detected in this message: {mail.virus}</div>}
+    {mail.spam && <div className="mail-spam mail-alert">This message was classified as spam.</div>}
+    <div className="mail-actions">
+      {mail.remote_user && <form onSubmit={(event) => { event.preventDefault(); forward.mutate(mail.remote_user!) }}><button disabled={forward.isPending}>
         {forward.isPending ? 'Forwarding…' : `Forward to ${mail.remote_user}`}
-      </button>}
-      <Link className="button" to="/$folder/$number/source" params={{ folder, number }}>View source</Link>
+      </button></form>}
+      <form onSubmit={(event) => { event.preventDefault(); void router.navigate({ to: '/$folder/$number/source', params: { folder, number } }) }}><button>View source</button></form>
       {forward.isSuccess && <span className="success">Forwarded.</span>}
       {forward.error && <span className="error">{forward.error.message}</span>}
     </div>
-    <dl className="headers">{Object.entries(mail.headers).map(([name, value]) => <div key={name}>
-      <dt>{name}</dt><dd>{value || '(none)'}</dd>
-    </div>)}</dl>
+    <pre>{header}</pre>
+    <hr />
     <MessageBody text={mail.body} dangerous={dangerous} />
-    {mail.attachments.length > 0 && <section className="attachments"><h2>Attachments</h2><ul>
+    {mail.attachments.length > 0 && <><hr /><pre>Attachments:</pre><ul className="mail-attachments">
       {mail.attachments.map((file) => <li key={file.filename}><a href={api.attachmentUrl(folder, number, file.filename)} onClick={(e) => {
         if (!confirmRisk()) e.preventDefault()
       }}>{file.filename}</a></li>)}
-    </ul></section>}
-  </main>
+    </ul></>}
+  </div>
 }
 
 const sourceRoute = createRoute({
@@ -122,10 +121,10 @@ function SourcePage() {
   const query = useQuery({ queryKey: ['source', folder, number], queryFn: () => api.source(folder, number) })
   if (query.isPending) return <Loading />
   if (query.isError) return <PageError error={query.error} />
-  return <main className="content message">
-    <div className="actions"><a className="button" href={api.sourceDownloadUrl(folder, number)}>Download message</a></div>
-    <pre className="mail-body">{query.data.source}</pre>
-  </main>
+  return <>
+    <div><a href={api.sourceDownloadUrl(folder, number)}>Download message</a></div>
+    <div className="mail"><pre>{query.data.source}</pre></div>
+  </>
 }
 
 const routeTree = rootRoute.addChildren([indexRoute, folderRoute, messageRoute, sourceRoute])
