@@ -10,7 +10,6 @@ import * as z from 'zod/mini'
 import { api } from './api'
 import { Layout } from './components/Layout'
 import { PageError } from './components/Status'
-import { DEFAULT_PER_PAGE } from './constants'
 import { FolderPage, messagesQueryOptions } from './pages/folder'
 import { MessagePage, messageQueryOptions } from './pages/message'
 import { SourcePage, sourceQueryOptions } from './pages/source'
@@ -33,6 +32,7 @@ const indexRoute = createRoute({
   },
 })
 
+const DEFAULT_PER_PAGE = 20
 const searchSchema = z.object({
   page: z._default(z.coerce.number(), 0),
   perPage: z._default(z.coerce.number(), DEFAULT_PER_PAGE),

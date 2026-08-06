@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useMatchRoute } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { api } from '../api'
-import { DEFAULT_PER_PAGE } from '../constants'
 
 export function Layout({ children }: { children: ReactNode }) {
   const config = useQuery({ queryKey: ['config'], queryFn: api.config })
@@ -12,7 +11,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <div className="folders">{config.data?.folders.map((folder) => {
         const selected = Boolean(matchRoute({ to: '/$folder', params: { folder }, fuzzy: true }))
         return <span key={folder} className={selected ? 'folder_sel' : 'folder'}>
-          <Link to="/$folder" params={{ folder }} search={{ page: 0, perPage: DEFAULT_PER_PAGE }}>{selected ? `[${folder}]` : folder}</Link>{' '}
+          <Link to="/$folder" params={{ folder }} search={{ page: 0 }}>{selected ? `[${folder}]` : folder}</Link>{' '}
         </span>
       })}</div>
       <div className="manual"><a href="https://inside.kmc.gr.jp/rubwiki/%E8%A7%A3%E8%AA%AC%E8%A8%98%E4%BA%8B/%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF/%E3%83%A1%E3%83%BC%E3%83%AB">解説記事/ネットワーク/メール</a></div>
