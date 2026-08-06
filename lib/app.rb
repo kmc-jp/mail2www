@@ -24,7 +24,6 @@ module Mail2www
     config_file 'config/mail2www.yml'
 
     configure :development do
-      Bundler.require :development
       require 'sinatra/reloader'
       register Sinatra::Reloader
     end
