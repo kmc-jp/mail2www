@@ -41,7 +41,7 @@ export function MessageBody({ text, dangerous }: { text: string, dangerous: bool
     const index = match.index
     chunks.push(text.slice(offset, index))
     chunks.push(<a key={index} href={match[0]} rel="noreferrer" onClick={(event) => {
-      if (dangerous && !window.confirm('This link may be dangerous. Continue?')) event.preventDefault()
+      if (dangerous && !window.confirm('このリンクは危険な可能性があります。本当に開きますか？')) event.preventDefault()
     }}>{match[0]}</a>)
     offset = index + match[0].length
   }

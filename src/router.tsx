@@ -86,7 +86,7 @@ function MessagePage() {
   if (query.isError) return <PageError error={query.error} />
   const mail = query.data
   const dangerous = mail.spam || Boolean(mail.virus)
-  const confirmRisk = () => !dangerous || window.confirm('This content may be dangerous. Continue?')
+  const confirmAttachmentRisk = () => !dangerous || window.confirm('この添付ファイルは危険な可能性があります。本当にダウンロードしますか？')
   const header = Object.entries(mail.headers).map(([name, value]) => `${name[0].toUpperCase()}${name.slice(1)}: ${value || '(none)'}`).join('\n')
   return <div className="mail">
     {mail.virus && <div className="mail-virus mail-alert">A virus was detected in this message: {mail.virus}</div>}
@@ -104,7 +104,7 @@ function MessagePage() {
     <MessageBody text={mail.body} dangerous={dangerous} />
     {mail.attachments.length > 0 && <><hr /><pre>Attachments:</pre><ul className="mail-attachments">
       {mail.attachments.map((file) => <li key={file.filename}><a href={api.attachmentUrl(folder, number, file.filename)} onClick={(e) => {
-        if (!confirmRisk()) e.preventDefault()
+        if (!confirmAttachmentRisk()) e.preventDefault()
       }}>{file.filename}</a></li>)}
     </ul></>}
   </div>
