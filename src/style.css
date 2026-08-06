@@ -61,6 +61,16 @@ div.footer{
   display: inline;
 }
 
+.mail-headers th {
+  padding-right: 0.5rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.mail-headers td {
+  overflow-wrap: anywhere;
+}
+
 .mail pre {
   white-space: pre-wrap;
   overflow-wrap: break-word;
