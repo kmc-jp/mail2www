@@ -85,7 +85,7 @@ module Mail2www
 
     get '/api/folders/:folder/messages/:mailnum' do |folder, mailnum|
       validate_folder!(folder)
-      ensure_mail_number!(mailnum)
+      validate_mailnum!(mailnum)
       mail = read_mail(folder, mailnum)
 
       json(
@@ -110,7 +110,7 @@ module Mail2www
 
     get '/api/folders/:folder/messages/:mailnum/source' do |folder, mailnum|
       validate_folder!(folder)
-      ensure_mail_number!(mailnum)
+      validate_mailnum!(mailnum)
       message = read_raw_mail(folder, mailnum)
 
       if truthy_param?('download')
@@ -124,7 +124,7 @@ module Mail2www
 
     get '/api/folders/:folder/messages/:mailnum/attachments/:filename' do |folder, mailnum, filename|
       validate_folder!(folder)
-      ensure_mail_number!(mailnum)
+      validate_mailnum!(mailnum)
       file = read_mail(folder, mailnum).attachments.find { |item| item.filename == filename }
       halt 404, json(error: 'Attachment not found') unless file
 
@@ -140,7 +140,7 @@ module Mail2www
 
     post '/api/folders/:folder/messages/:mailnum/forward' do |folder, mailnum|
       validate_folder!(folder)
-      ensure_mail_number!(mailnum)
+      validate_mailnum!(mailnum)
       payload = request.body.read
       payload = payload.empty? ? {} : JSON.parse(payload)
       to = payload.fetch('to')
@@ -181,7 +181,7 @@ module Mail2www
       json_error(404, 'Folder not found') if folder.start_with?('.') || folder.include?('/')
     end
 
-    def ensure_mail_number!(mailnum)
+    def validate_mailnum!(mailnum)
       json_error(404, 'Mail not found') unless /\A[1-9]\d*\z/.match?(mailnum)
     end
 
