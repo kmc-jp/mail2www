@@ -3,7 +3,6 @@ import * as z from 'zod/mini'
 const configSchema = z.object({
   title: z.string(),
   folders: z.array(z.string()),
-  mails_per_page: z.number(),
 })
 
 const messageSummarySchema = z.object({

@@ -18,8 +18,6 @@ module Mail2www
       self[:mailname] = 'example.com'
       self[:bounce_to] = 'bounce@example.com'
 
-      # system configurations
-      self[:mails_per_page] ||= 20
     end
   end
 end

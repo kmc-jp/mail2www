@@ -52,17 +52,14 @@ module Mail2www
     get '/api/config' do
       json(
         title: @config[:title],
-        folders: @config[:folders],
-        mails_per_page: @config[:mails_per_page]
+        folders: @config[:folders]
       )
     end
 
     get '/api/folders/:folder/messages' do |folder|
       ensure_folder!(folder)
       page = integer_param('page', default: 0, minimum: 0)
-      per_page = integer_param(
-        'per_page', default: @config[:mails_per_page], minimum: 1, maximum: 100
-      )
+      per_page = integer_param('per_page', minimum: 1, maximum: 100)
 
       files = mail_numbers(folder)
       pages = (files.size.to_f / per_page).ceil
@@ -170,8 +167,9 @@ module Mail2www
       "#{request.script_name}/api#{path}"
     end
 
-    def integer_param(name, default:, minimum:, maximum: nil)
+    def integer_param(name, default: nil, minimum:, maximum: nil)
       value = params[name] ? Integer(params[name], 10) : default
+      raise ArgumentError if value.nil?
       raise ArgumentError if value < minimum || (maximum && value > maximum)
       value
     rescue ArgumentError

@@ -14,7 +14,6 @@ describe Mail2www::App do
       mail_dir: mail_root,
       folders: %w[public],
       title: 'Test archive',
-      mails_per_page: 20,
       smtp_server: 'smtp.example.test',
       mailname: 'example.test',
       bounce_to: 'bounce@example.test'
@@ -43,8 +42,9 @@ describe Mail2www::App do
 
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)).to include(
-      'title' => 'Test archive', 'folders' => ['public'], 'mails_per_page' => 20
+      'title' => 'Test archive', 'folders' => ['public']
     )
+    expect(JSON.parse(response.body)).not_to have_key('mails_per_page')
   end
 
   it 'lists messages with pagination metadata' do
@@ -54,6 +54,13 @@ describe Mail2www::App do
     expect(response.status).to eq(200)
     expect(body).to include('page' => 0, 'pages' => 1, 'total' => 1)
     expect(body.fetch('messages').first).to include('number' => '1', 'subject' => 'API test')
+  end
+
+  it 'requires the frontend to choose a page size' do
+    response = request.get('/api/folders/public/messages')
+
+    expect(response.status).to eq(400)
+    expect(JSON.parse(response.body).fetch('error')).to start_with('per_page must be')
   end
 
   it 'returns a parsed message' do

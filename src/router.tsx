@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-router'
 import * as z from 'zod/mini'
 import { api } from './api'
+import { DEFAULT_PER_PAGE } from './constants'
 import { Layout, Loading, MessageBody, PageError, Pagination } from './ui'
 
 type RouterContext = { queryClient: QueryClient }
@@ -31,7 +32,7 @@ const indexRoute = createRoute({
 
 const searchSchema = z.object({
   page: z._default(z.coerce.number(), 0),
-  perPage: z._default(z.coerce.number(), 20),
+  perPage: z._default(z.coerce.number(), DEFAULT_PER_PAGE),
 })
 
 const folderRoute = createRoute({

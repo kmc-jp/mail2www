@@ -21,16 +21,11 @@ module Mail2www
       expect(subject[:title]).to be_an_instance_of(String)
     end
 
-    it "#mails_per_page" do
-      expect(subject[:mails_per_page]).not_to be_nil
-    end
-
     context "when the constructor receives a hash" do
       let (:hash) { {
           mail_dir: "new mail dir",
           folders: %w(folder1, folder2),
-          title: "new title",
-          mails_per_page: 50
+          title: "new title"
         } }
 
       subject { Mail2www::Config.new(hash) }
@@ -47,9 +42,6 @@ module Mail2www
         expect(subject[:title]).to eq(hash[:title])
       end
 
-      it "#mails_per_page" do
-        expect(subject[:mails_per_page]).to eq(hash[:mails_per_page])
-      end
     end
   end
 end

@@ -2,13 +2,14 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { api } from './api'
+import { DEFAULT_PER_PAGE } from './constants'
 
 export function Layout({ children }: { children: ReactNode }) {
   const config = useQuery({ queryKey: ['config'], queryFn: api.config })
   return <div className="app-shell">
     <header><Link to="/" className="brand">{config.data?.title ?? 'mail2www'}</Link>
       <nav aria-label="Mail folders">{config.data?.folders.map((folder) =>
-        <Link key={folder} to="/$folder" params={{ folder }} search={{ page: 0, perPage: config.data.mails_per_page }} activeProps={{ 'aria-current': 'page' }}>{folder}</Link>
+        <Link key={folder} to="/$folder" params={{ folder }} search={{ page: 0, perPage: DEFAULT_PER_PAGE }} activeProps={{ 'aria-current': 'page' }}>{folder}</Link>
       )}</nav>
     </header>
     {children}
