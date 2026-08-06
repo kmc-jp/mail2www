@@ -1,6 +1,6 @@
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { api } from '../api'
+import { api, type Mailbox } from '../api'
 import { MessageBody } from '../components/MessageBody'
 import { Loading, PageError } from '../components/Status'
 
@@ -13,7 +13,14 @@ export function MessagePage({ folder, number }: { folder: string, number: string
   const mail = query.data
   const dangerous = mail.spam || Boolean(mail.virus)
   const confirmAttachmentRisk = () => !dangerous || window.confirm('この添付ファイルは危険な可能性があります。本当にダウンロードしますか？')
-  const header = Object.entries(mail.headers).map(([name, value]) => `${name[0].toUpperCase()}${name.slice(1)}: ${value || '(none)'}`).join('\n')
+  const formatAddresses = (addresses: Mailbox[]) => addresses.map(({ name, address }) => name ? `${name} <${address}>` : address).join(', ') || '(none)'
+  const header = [
+    `From: ${formatAddresses(mail.headers.from)}`,
+    `To: ${formatAddresses(mail.headers.to)}`,
+    `Cc: ${formatAddresses(mail.headers.cc)}`,
+    `Subject: ${mail.headers.subject}`,
+    `Date: ${mail.headers.date || '(none)'}`,
+  ].join('\n')
   return <div className="mail">
     {mail.virus && <div className="mail-virus mail-alert">このメールにはウイルスが検出されています: {mail.virus}</div>}
     {mail.spam && <div className="mail-spam mail-alert">このメールはスパムメールと判定されています</div>}

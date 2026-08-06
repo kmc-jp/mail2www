@@ -66,6 +66,11 @@ describe Mail2www::App do
       'text' => "Hello from the API.\n",
       'html' => nil
     )
+    expect(body.fetch('headers')).to include(
+      'from' => [{ 'name' => 'Sender', 'address' => 'sender@example.test' }],
+      'to' => [{ 'name' => nil, 'address' => 'archive@example.test' }],
+      'cc' => []
+    )
     expect(body.fetch('remote_user')).to eq('member')
   end
 

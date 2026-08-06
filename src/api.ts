@@ -22,13 +22,18 @@ const messageListSchema = z.object({
   messages: z.array(messageSummarySchema),
 })
 
+const mailboxSchema = z.object({
+  name: z.nullable(z.string()),
+  address: z.string(),
+})
+
 const messageSchema = z.object({
   folder: z.string(),
   number: z.string(),
   headers: z.object({
-    from: z.nullable(z.string()),
-    to: z.nullable(z.string()),
-    cc: z.nullable(z.string()),
+    from: z.array(mailboxSchema),
+    to: z.array(mailboxSchema),
+    cc: z.array(mailboxSchema),
     subject: z.string(),
     date: z.nullable(z.string()),
   }),
@@ -46,6 +51,7 @@ const sourceSchema = z.object({ source: z.string() })
 
 export type AppConfig = z.infer<typeof configSchema>
 export type MessageList = z.infer<typeof messageListSchema>
+export type Mailbox = z.infer<typeof mailboxSchema>
 export type Message = z.infer<typeof messageSchema>
 
 async function request(path: string, init?: RequestInit): Promise<unknown> {

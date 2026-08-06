@@ -44,6 +44,18 @@ module Mail2www
       "'Cc' contains invalid characters"
     end
 
+    def get_addresses(mail, field_name)
+      field = mail[field_name]
+      return [] unless field
+
+      field.element.addresses.map do |mailbox|
+        {
+          name: mailbox.display_name&.encode('utf-8')&.scrub,
+          address: mailbox.address.encode('utf-8').scrub
+        }
+      end
+    end
+
     def get_subject(mail)
       mail.subject ? mail.subject.encode('utf-8').scrub : '(no subject)'
     rescue Encoding::UndefinedConversionError

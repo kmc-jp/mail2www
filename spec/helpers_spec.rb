@@ -29,6 +29,21 @@ describe Mail2www::Helpers do
     end
   end
 
+  describe 'get_addresses' do
+    it 'returns display names and addresses for each mailbox' do
+      message = Mail.new
+      message.to = ['John Doe <john@example.com>', 'jane@example.com']
+
+      expect(get_addresses(message, :to)).to eq(
+        [
+          { name: 'John Doe', address: 'john@example.com' },
+          { name: nil, address: 'jane@example.com' }
+        ]
+      )
+      expect(get_addresses(message, :cc)).to eq([])
+    end
+  end
+
   describe "append_slash" do
     let (:url) { "http://example.com/example" }
     let (:url_end_with_slash) { "http://example.com/example/" }

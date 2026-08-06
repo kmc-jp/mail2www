@@ -92,9 +92,9 @@ module Mail2www
         folder: folder,
         number: mailnum,
         headers: {
-          from: get_from(mail),
-          to: get_to(mail),
-          cc: get_cc(mail),
+          from: get_addresses(mail, :from),
+          to: get_addresses(mail, :to),
+          cc: get_addresses(mail, :cc),
           subject: get_subject(mail),
           date: get_date(mail)
         },
