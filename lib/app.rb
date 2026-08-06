@@ -10,7 +10,6 @@ require 'sinatra/base'
 require 'net/smtp'
 
 require_relative 'helpers'
-require_relative 'mail_extension'
 
 module Mail2www
   class App < Sinatra::Base
