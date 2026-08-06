@@ -4,6 +4,7 @@ const configSchema = z.object({
   title: z.string(),
   folders: z.array(z.string()),
   ruby_version: z.string(),
+  remote_user: z.nullable(z.string()),
 })
 
 const messageSummarySchema = z.object({
@@ -43,7 +44,6 @@ const messageSchema = z.object({
   }),
   spam: z.boolean(),
   virus: z.nullable(z.string()),
-  remote_user: z.nullable(z.string()),
   attachments: z.array(z.object({ filename: z.string(), content_type: z.nullable(z.string()) })),
 })
 

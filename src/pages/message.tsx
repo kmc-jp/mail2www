@@ -1,16 +1,19 @@
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { api, type Mailbox } from '../api'
+import { useAppConfig } from '../components/AppConfig'
 import { MessageBody } from '../components/MessageBody'
 import { Loading, PageError } from '../components/Status'
 
 export function MessagePage({ folder, number }: { folder: string, number: string }) {
   const navigate = useNavigate()
+  const config = useAppConfig()
   const query = useQuery(messageQueryOptions(folder, number))
   const forward = useMutation({ mutationFn: (to: string) => api.forward(folder, number, to) })
   if (query.isPending) return <Loading />
   if (query.isError) return <PageError error={query.error} />
   const mail = query.data
+  const remoteUser = config.remote_user
   const dangerous = mail.spam || Boolean(mail.virus)
   const confirmAttachmentRisk = () => !dangerous || window.confirm('この添付ファイルは危険な可能性があります。本当にダウンロードしますか？')
   const formatAddresses = (addresses: Mailbox[]) => addresses.map(({ name, address }) => name ? `${name} <${address}>` : address).join(', ') || '(none)'
@@ -25,8 +28,8 @@ export function MessagePage({ folder, number }: { folder: string, number: string
     {mail.virus && <div className="mail-virus mail-alert">このメールにはウイルスが検出されています: {mail.virus}</div>}
     {mail.spam && <div className="mail-spam mail-alert">このメールはスパムメールと判定されています</div>}
     <div className="mail-actions">
-      {mail.remote_user && <form onSubmit={(event) => { event.preventDefault(); forward.mutate(mail.remote_user!) }}><button disabled={forward.isPending}>
-        {mail.remote_user}へ転送
+      {remoteUser && <form onSubmit={(event) => { event.preventDefault(); forward.mutate(remoteUser) }}><button disabled={forward.isPending}>
+        {remoteUser}へ転送
       </button></form>}
       <form onSubmit={(event) => { event.preventDefault(); void navigate({ to: '/$folder/$number/source', params: { folder, number } }) }}><button>ソースを表示</button></form>
       {forward.error && <span className="error">{forward.error.message}</span>}

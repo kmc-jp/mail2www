@@ -54,7 +54,8 @@ module Mail2www
       json(
         title: settings.title,
         folders: settings.folders,
-        ruby_version: RUBY_VERSION
+        ruby_version: RUBY_VERSION,
+        remote_user:,
       )
     end
 
@@ -101,7 +102,6 @@ module Mail2www
         body: get_body(mail),
         spam: spam?(mail),
         virus: virus_detected?(mail),
-        remote_user: remote_user,
         attachments: mail.attachments.map do |attachment|
           { filename: attachment.filename, content_type: attachment.mime_type }
         end

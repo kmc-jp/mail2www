@@ -28,11 +28,12 @@ describe Mail2www::App do
   end
 
   it 'returns frontend configuration' do
-    response = request.get('/api/config')
+    response = request.get('/api/config', 'HTTP_X_FORWARDED_USER' => 'member')
 
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)).to include(
-      'title' => 'Test archive', 'folders' => ['public'], 'ruby_version' => RUBY_VERSION
+      'title' => 'Test archive', 'folders' => ['public'], 'ruby_version' => RUBY_VERSION,
+      'remote_user' => 'member'
     )
     expect(JSON.parse(response.body)).not_to have_key('mails_per_page')
   end
@@ -72,7 +73,7 @@ describe Mail2www::App do
       'cc' => [],
       'date' => '2026-01-01T00:00:00+00:00'
     )
-    expect(body.fetch('remote_user')).to eq('member')
+    expect(body).not_to have_key('remote_user')
   end
 
   it 'lists folders that are not in the navigation configuration' do
