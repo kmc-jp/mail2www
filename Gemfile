@@ -12,6 +12,7 @@ gem 'time'
 gem 'uri'
 
 group :development, :test do
+  gem 'rackup'
   gem 'webrick'
   gem 'rake'
   gem 'rspec'
