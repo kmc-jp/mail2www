@@ -1,14 +1,11 @@
-import { useQuery } from '@tanstack/react-query'
+import { queryOptions, useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { api } from '../api'
 import { Loading, PageError } from '../components/Status'
 import { Pagination } from '../components/Pagination'
 
 export function FolderPage({ folder, page, perPage }: { folder: string, page: number, perPage: number }) {
-  const query = useQuery({
-    queryKey: ['messages', folder, page, perPage],
-    queryFn: () => api.messages(folder, page, perPage),
-  })
+  const query = useQuery(messagesQueryOptions(folder, page, perPage))
   if (query.isPending) return <Loading />
   if (query.isError) return <PageError error={query.error} />
   const data = query.data
@@ -31,6 +28,12 @@ export function FolderPage({ folder, page, perPage }: { folder: string, page: nu
     <div className="autopagerize_insert_before" />
   </>
 }
+
+export const messagesQueryOptions = (folder: string, page: number, perPage: number) =>
+  queryOptions({
+    queryKey: ['messages', folder, page, perPage],
+    queryFn: () => api.messages(folder, page, perPage),
+  })
 
 function formatMailDate(value: string) {
   const date = new Date(value)

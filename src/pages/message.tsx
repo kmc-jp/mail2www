@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { api } from '../api'
 import { MessageBody } from '../components/MessageBody'
@@ -6,7 +6,7 @@ import { Loading, PageError } from '../components/Status'
 
 export function MessagePage({ folder, number }: { folder: string, number: string }) {
   const navigate = useNavigate()
-  const query = useQuery({ queryKey: ['message', folder, number], queryFn: () => api.message(folder, number) })
+  const query = useQuery(messageQueryOptions(folder, number))
   const forward = useMutation({ mutationFn: (to: string) => api.forward(folder, number, to) })
   if (query.isPending) return <Loading />
   if (query.isError) return <PageError error={query.error} />
@@ -34,3 +34,8 @@ export function MessagePage({ folder, number }: { folder: string, number: string
     </ul></>}
   </div>
 }
+
+export const messageQueryOptions = (folder: string, number: string) => queryOptions({
+  queryKey: ['message', folder, number],
+  queryFn: () => api.message(folder, number),
+})

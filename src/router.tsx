@@ -11,9 +11,9 @@ import { api } from './api'
 import { Layout } from './components/Layout'
 import { PageError } from './components/Status'
 import { DEFAULT_PER_PAGE } from './constants'
-import { FolderPage } from './pages/folder'
-import { MessagePage } from './pages/message'
-import { SourcePage } from './pages/source'
+import { FolderPage, messagesQueryOptions } from './pages/folder'
+import { MessagePage, messageQueryOptions } from './pages/message'
+import { SourcePage, sourceQueryOptions } from './pages/source'
 
 type RouterContext = { queryClient: QueryClient }
 
@@ -42,6 +42,9 @@ const folderRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/$folder',
   validateSearch: searchSchema,
+  loaderDeps: ({ search: { page, perPage } }) => ({ page, perPage }),
+  loader: ({ context, params, deps }) =>
+    context.queryClient.ensureQueryData(messagesQueryOptions(params.folder, deps.page, deps.perPage)),
   component: FolderRoute,
 })
 
@@ -54,6 +57,8 @@ function FolderRoute() {
 const messageRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/$folder/$number',
+  loader: ({ context, params }) =>
+    context.queryClient.ensureQueryData(messageQueryOptions(params.folder, params.number)),
   component: MessageRoute,
 })
 
@@ -65,6 +70,8 @@ function MessageRoute() {
 const sourceRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/$folder/$number/source',
+  loader: ({ context, params }) =>
+    context.queryClient.ensureQueryData(sourceQueryOptions(params.folder, params.number)),
   component: SourceRoute,
 })
 
