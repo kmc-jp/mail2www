@@ -3,13 +3,13 @@ import * as z from 'zod/mini'
 const configSchema = z.object({
   title: z.string(),
   folders: z.array(z.string()),
+  ruby_version: z.string(),
 })
 
 const messageSummarySchema = z.object({
   number: z.string(),
   from: z.nullable(z.string()),
-  date: z.nullable(z.string()),
-  age: z.nullable(z.string()),
+  date: z.nullable(z.iso.datetime({ offset: true })),
   subject: z.string(),
 })
 

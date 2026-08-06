@@ -60,16 +60,36 @@ function FolderPage() {
       {[10, 20, 50, 100].map((amount) => <Link key={amount} to="/$folder" params={{ folder }} search={{ page: 0, perPage: amount }}>{amount}{' '}</Link>)}
     </div>
     <div className="autopagerize_page_element"><div className="main"><table id="mail_list">
-      <thead><tr><th>Time</th><th>No.</th><th>From</th><th>Subject</th></tr></thead>
+      <thead><tr><th>time</th><th>no</th><th>from</th><th>subject</th></tr></thead>
       <tbody>{data.messages.map((message) => <tr key={message.number}>
-        <td className="time">{message.date ? new Date(message.date).toLocaleDateString() : '—'} <small>{message.age}</small></td>
+        <td className="time">{message.date ? formatMailDate(message.date) : ''}</td>
         <td className="num"><Link to="/$folder/$number" params={{ folder, number: message.number }}>{message.number}</Link></td>
-        <td className="from">{message.from || '—'}</td>
+        <td className="from">{message.from}</td>
         <td className="subj"><Link to="/$folder/$number" params={{ folder, number: message.number }}>{message.subject}</Link></td>
       </tr>)}</tbody>
     </table></div></div>
     <div className="autopagerize_insert_before" />
   </>
+}
+
+function formatMailDate(value: string) {
+  const date = new Date(value)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const seconds = Math.max(0, (Date.now() - date.getTime()) / 1_000)
+  const minute = 60
+  const hour = 60 * minute
+  const fullDay = 24 * hour
+  let age: string
+
+  if (seconds < minute) age = `${Math.floor(seconds)}s`
+  else if (seconds < hour) age = `${Math.floor(seconds / minute)}m`
+  else if (seconds < fullDay) age = `${Math.floor(seconds / hour)}h`
+  else if (seconds <= 30 * fullDay) age = `${Math.floor(seconds / fullDay)}d`
+  else age = `${Math.floor(seconds / (30 * fullDay))}M`
+
+  return `${year}/${month}/${day} (${age})`
 }
 
 const messageRoute = createRoute({
@@ -93,16 +113,15 @@ function MessagePage() {
     {mail.spam && <div className="mail-spam mail-alert">このメールはスパムメールと判定されています</div>}
     <div className="mail-actions">
       {mail.remote_user && <form onSubmit={(event) => { event.preventDefault(); forward.mutate(mail.remote_user!) }}><button disabled={forward.isPending}>
-        {forward.isPending ? 'Forwarding…' : `Forward to ${mail.remote_user}`}
+        {mail.remote_user}へ転送
       </button></form>}
-      <form onSubmit={(event) => { event.preventDefault(); void router.navigate({ to: '/$folder/$number/source', params: { folder, number } }) }}><button>View source</button></form>
-      {forward.isSuccess && <span className="success">Forwarded.</span>}
+      <form onSubmit={(event) => { event.preventDefault(); void router.navigate({ to: '/$folder/$number/source', params: { folder, number } }) }}><button>ソースを表示</button></form>
       {forward.error && <span className="error">{forward.error.message}</span>}
     </div>
     <pre>{header}</pre>
     <hr />
     <MessageBody text={mail.body} dangerous={dangerous} />
-    {mail.attachments.length > 0 && <><hr /><pre>Attachments:</pre><ul className="mail-attachments">
+    {mail.attachments.length > 0 && <><hr /><pre>添付ファイル:</pre><ul className="mail-attachments">
       {mail.attachments.map((file) => <li key={file.filename}><a href={api.attachmentUrl(folder, number, file.filename)} onClick={(e) => {
         if (!confirmAttachmentRisk()) e.preventDefault()
       }}>{file.filename}</a></li>)}
@@ -122,7 +141,7 @@ function SourcePage() {
   if (query.isPending) return <Loading />
   if (query.isError) return <PageError error={query.error} />
   return <>
-    <div><a href={api.sourceDownloadUrl(folder, number)}>Download message</a></div>
+    <div><a href={api.sourceDownloadUrl(folder, number)}>このメッセージをダウンロード</a></div>
     <div className="mail"><pre>{query.data.source}</pre></div>
   </>
 }

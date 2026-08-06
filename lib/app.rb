@@ -53,7 +53,8 @@ module Mail2www
     get '/api/config' do
       json(
         title: settings.title,
-        folders: settings.folders
+        folders: settings.folders,
+        ruby_version: RUBY_VERSION
       )
     end
 
@@ -74,7 +75,6 @@ module Mail2www
           number: number,
           from: get_from(mail),
           date: date&.iso8601,
-          age: date ? how_old(date) : nil,
           subject: get_subject(mail)
         }
       end

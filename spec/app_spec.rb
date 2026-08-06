@@ -32,7 +32,7 @@ describe Mail2www::App do
 
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)).to include(
-      'title' => 'Test archive', 'folders' => ['public']
+      'title' => 'Test archive', 'folders' => ['public'], 'ruby_version' => RUBY_VERSION
     )
     expect(JSON.parse(response.body)).not_to have_key('mails_per_page')
   end
@@ -43,7 +43,11 @@ describe Mail2www::App do
 
     expect(response.status).to eq(200)
     expect(body).to include('page' => 0, 'pages' => 1, 'total' => 1)
-    expect(body.fetch('messages').first).to include('number' => '1', 'subject' => 'API test')
+    expect(body.fetch('messages').first).to include(
+      'number' => '1',
+      'subject' => 'API test',
+      'date' => '2026-01-01T00:00:00+00:00'
+    )
   end
 
   it 'requires the frontend to choose a page size' do
