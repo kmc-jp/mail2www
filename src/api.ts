@@ -35,7 +35,7 @@ const messageSchema = z.object({
     to: z.array(mailboxSchema),
     cc: z.array(mailboxSchema),
     subject: z.string(),
-    date: z.nullable(z.string()),
+    date: z.nullable(z.iso.datetime({ offset: true })),
   }),
   body: z.object({
     text: z.nullable(z.string()),

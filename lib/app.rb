@@ -96,7 +96,7 @@ module Mail2www
           to: get_addresses(mail, :to),
           cc: get_addresses(mail, :cc),
           subject: get_subject(mail),
-          date: get_date(mail)
+          date: parse_mail_date(mail)&.iso8601
         },
         body: get_body(mail),
         spam: spam?(mail),

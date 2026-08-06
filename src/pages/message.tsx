@@ -19,7 +19,7 @@ export function MessagePage({ folder, number }: { folder: string, number: string
     `To: ${formatAddresses(mail.headers.to)}`,
     `Cc: ${formatAddresses(mail.headers.cc)}`,
     `Subject: ${mail.headers.subject}`,
-    `Date: ${mail.headers.date || '(none)'}`,
+    `Date: ${mail.headers.date ? new Date(mail.headers.date).toLocaleString() : '(none)'}`,
   ].join('\n')
   return <div className="mail">
     {mail.virus && <div className="mail-virus mail-alert">このメールにはウイルスが検出されています: {mail.virus}</div>}

@@ -69,7 +69,8 @@ describe Mail2www::App do
     expect(body.fetch('headers')).to include(
       'from' => [{ 'name' => 'Sender', 'address' => 'sender@example.test' }],
       'to' => [{ 'name' => nil, 'address' => 'archive@example.test' }],
-      'cc' => []
+      'cc' => [],
+      'date' => '2026-01-01T00:00:00+00:00'
     )
     expect(body.fetch('remote_user')).to eq('member')
   end
