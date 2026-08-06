@@ -58,7 +58,7 @@ module Mail2www
     end
 
     get '/api/folders/:folder/messages' do |folder|
-      ensure_folder!(folder)
+      validate_folder!(folder)
       page = integer_param('page', default: 0, minimum: 0)
       per_page = integer_param('per_page', minimum: 1, maximum: 100)
 
@@ -84,7 +84,7 @@ module Mail2www
     end
 
     get '/api/folders/:folder/messages/:mailnum' do |folder, mailnum|
-      ensure_folder!(folder)
+      validate_folder!(folder)
       ensure_mail_number!(mailnum)
       mail = read_mail(folder, mailnum)
 
@@ -109,7 +109,7 @@ module Mail2www
     end
 
     get '/api/folders/:folder/messages/:mailnum/source' do |folder, mailnum|
-      ensure_folder!(folder)
+      validate_folder!(folder)
       ensure_mail_number!(mailnum)
       message = read_raw_mail(folder, mailnum)
 
@@ -123,7 +123,7 @@ module Mail2www
     end
 
     get '/api/folders/:folder/messages/:mailnum/attachments/:filename' do |folder, mailnum, filename|
-      ensure_folder!(folder)
+      validate_folder!(folder)
       ensure_mail_number!(mailnum)
       file = read_mail(folder, mailnum).attachments.find { |item| item.filename == filename }
       halt 404, json(error: 'Attachment not found') unless file
@@ -139,7 +139,7 @@ module Mail2www
     end
 
     post '/api/folders/:folder/messages/:mailnum/forward' do |folder, mailnum|
-      ensure_folder!(folder)
+      validate_folder!(folder)
       ensure_mail_number!(mailnum)
       payload = request.body.read
       payload = payload.empty? ? {} : JSON.parse(payload)
@@ -177,8 +177,8 @@ module Mail2www
       %w[1 true yes].include?(params.fetch(name, '').downcase)
     end
 
-    def ensure_folder!(folder)
-      json_error(404, 'Folder not found') unless settings.folders.include?(folder)
+    def validate_folder!(folder)
+      json_error(404, 'Folder not found') if folder.start_with?('.') || folder.include?('/')
     end
 
     def ensure_mail_number!(mailnum)

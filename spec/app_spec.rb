@@ -62,11 +62,25 @@ describe Mail2www::App do
     expect(body.fetch('remote_user')).to eq('member')
   end
 
-  it 'returns JSON errors and rejects unconfigured folders' do
-    response = request.get('/api/folders/private/messages')
+  it 'lists folders that are not in the navigation configuration' do
+    response = request.get('/api/folders/unlisted/messages?per_page=10')
+    body = JSON.parse(response.body)
+
+    expect(response.status).to eq(200)
+    expect(body.fetch('messages').first).to include('number' => '1', 'subject' => 'Unlisted folder')
+  end
+
+  it 'rejects folders beginning with a dot' do
+    response = request.get('/api/folders/.private/messages?per_page=10')
 
     expect(response.status).to eq(404)
-    expect(response['content-type']).to include('application/json')
+    expect(JSON.parse(response.body)).to eq('error' => 'Folder not found')
+  end
+
+  it 'rejects folders containing a slash' do
+    response = request.get('/api/folders/public%2Fsecret/messages?per_page=10')
+
+    expect(response.status).to eq(404)
     expect(JSON.parse(response.body)).to eq('error' => 'Folder not found')
   end
 
