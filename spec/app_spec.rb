@@ -37,6 +37,14 @@ describe Mail2www::App do
 
   after { FileUtils.remove_entry(mail_root) }
 
+  it 'reports API health without redirecting' do
+    response = request.get('/api')
+
+    expect(response.status).to eq(200)
+    expect(response['content-type']).to include('application/json')
+    expect(JSON.parse(response.body)).to eq('OK')
+  end
+
   it 'returns frontend configuration' do
     response = request.get('/api/config')
 

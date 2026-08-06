@@ -46,7 +46,8 @@ module Mail2www
     end
 
     get '/api' do
-      redirect api_path('/config')
+      content_type :json
+      json('OK')
     end
 
     get '/api/config' do
@@ -161,10 +162,6 @@ module Mail2www
     def json_error(status_code, message)
       content_type :json
       halt status_code, json(error: message)
-    end
-
-    def api_path(path)
-      "#{request.script_name}/api#{path}"
     end
 
     def integer_param(name, default: nil, minimum:, maximum: nil)
