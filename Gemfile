@@ -13,6 +13,7 @@ gem 'uri'
 
 group :development, :test do
   gem 'webrick'
+  gem 'rake'
   gem 'rspec'
   gem 'guard', require: false
   gem 'guard-rspec', require: false
