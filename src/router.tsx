@@ -89,8 +89,8 @@ function MessagePage() {
   const confirmAttachmentRisk = () => !dangerous || window.confirm('この添付ファイルは危険な可能性があります。本当にダウンロードしますか？')
   const header = Object.entries(mail.headers).map(([name, value]) => `${name[0].toUpperCase()}${name.slice(1)}: ${value || '(none)'}`).join('\n')
   return <div className="mail">
-    {mail.virus && <div className="mail-virus mail-alert">A virus was detected in this message: {mail.virus}</div>}
-    {mail.spam && <div className="mail-spam mail-alert">This message was classified as spam.</div>}
+    {mail.virus && <div className="mail-virus mail-alert">このメールにはウイルスが検出されています: {mail.virus}</div>}
+    {mail.spam && <div className="mail-spam mail-alert">このメールはスパムメールと判定されています</div>}
     <div className="mail-actions">
       {mail.remote_user && <form onSubmit={(event) => { event.preventDefault(); forward.mutate(mail.remote_user!) }}><button disabled={forward.isPending}>
         {forward.isPending ? 'Forwarding…' : `Forward to ${mail.remote_user}`}
