@@ -9,17 +9,17 @@ require_relative '../lib/app'
 
 describe Mail2www::App do
   let(:mail_root) { Dir.mktmpdir('mail2www-spec') }
-  let(:config) do
-    {
-      mail_dir: mail_root,
-      folders: %w[public],
-      title: 'Test archive',
-      smtp_server: 'smtp.example.test',
-      mailname: 'example.test',
-      bounce_to: 'bounce@example.test'
-    }
+  let(:app_class) do
+    Class.new(described_class).tap do |app|
+      app.set :mail_dir, mail_root
+      app.set :folders, %w[public]
+      app.set :title, 'Test archive'
+      app.set :smtp_server, 'smtp.example.test'
+      app.set :mailname, 'example.test'
+      app.set :bounce_to, 'bounce@example.test'
+    end
   end
-  let(:request) { Rack::MockRequest.new(described_class.new(config)) }
+  let(:request) { Rack::MockRequest.new(app_class.new) }
 
   before do
     FileUtils.mkdir_p(File.join(mail_root, 'public'))

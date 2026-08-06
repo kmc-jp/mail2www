@@ -8,6 +8,7 @@ gem 'net-smtp'
 gem 'nkf'
 gem 'securerandom'
 gem 'sinatra'
+gem 'sinatra-contrib'
 gem 'time'
 gem 'uri'
 
@@ -18,5 +19,4 @@ group :development, :test do
   gem 'rspec'
   gem 'guard', require: false
   gem 'guard-rspec', require: false
-  gem 'sinatra-contrib', require: 'sinatra/reloader'
 end

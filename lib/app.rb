@@ -7,6 +7,7 @@ require 'mail'
 require 'net/smtp'
 require 'securerandom'
 require 'sinatra/base'
+require 'sinatra/config_file'
 require 'time'
 
 require_relative 'helpers'
@@ -15,21 +16,21 @@ module Mail2www
   # JSON API for the mail2www React application.
   class App < Sinatra::Base
     helpers Mail2www::Helpers
+    register Sinatra::ConfigFile
 
     SAFE_ATTACHMENT_CONTENT_TYPES = %w[application/pdf image/jpeg image/png].freeze
 
+    set :root, File.expand_path('..', __dir__)
+    config_file 'config/mail2www.yml'
+
     configure :development do
       Bundler.require :development
+      require 'sinatra/reloader'
       register Sinatra::Reloader
     end
 
     set :protection, except: :path_traversal
     set :show_exceptions, false
-
-    def initialize(config)
-      @config = config
-      super()
-    end
 
     before '/api/*' do
       content_type :json
@@ -51,8 +52,8 @@ module Mail2www
 
     get '/api/config' do
       json(
-        title: @config[:title],
-        folders: @config[:folders]
+        title: settings.title,
+        folders: settings.folders
       )
     end
 
@@ -181,7 +182,7 @@ module Mail2www
     end
 
     def ensure_folder!(folder)
-      json_error(404, 'Folder not found') unless @config[:folders].include?(folder)
+      json_error(404, 'Folder not found') unless settings.folders.include?(folder)
     end
 
     def ensure_mail_number!(mailnum)
@@ -189,14 +190,14 @@ module Mail2www
     end
 
     def mail_numbers(folder)
-      path = File.join(@config[:mail_dir], folder)
+      path = File.join(settings.mail_dir, folder)
       json_error(404, 'Folder not found') unless File.directory?(path)
       Dir.children(path).filter_map { |name| name if /\A[1-9]\d*\z/.match?(name) }
          .sort_by(&:to_i).reverse
     end
 
     def mail_path(folder, mailnum)
-      File.join(@config[:mail_dir], folder, mailnum.to_s)
+      File.join(settings.mail_dir, folder, mailnum.to_s)
     end
 
     def read_mail(folder, mailnum)
@@ -224,9 +225,9 @@ module Mail2www
 
     def forward_mail(folder, mailnum, to:)
       validate_local_part!(to)
-      mailname = @config.fetch(:mailname)
+      mailname = settings.mailname
       recipient = "#{to}@#{mailname}"
-      bounce_to = @config.fetch(:bounce_to)
+      bounce_to = settings.bounce_to
       bounce_to = bounce_to.call(recipient) if bounce_to.respond_to?(:call)
       message = read_raw_mail(folder, mailnum).sub(/\AFrom .*?\n/, '')
       fields = {
@@ -237,7 +238,7 @@ module Mail2www
         'Resent-Message-ID' => generate_message_id(mailname)
       }
       message.prepend(fields.map { |name, value| "#{name}: #{value}\r\n" }.join)
-      Net::SMTP.start(@config.fetch(:smtp_server)) do |smtp|
+      Net::SMTP.start(settings.smtp_server) do |smtp|
         smtp.send_message(message, bounce_to, recipient)
       end
     end

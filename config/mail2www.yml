@@ -1,0 +1,13 @@
+development:
+  title: mail2www
+
+  mail_dir: tmp/mail
+  folders:
+    - test
+    - admin
+    - info
+    - other
+
+  smtp_server: smtp.example.com
+  mailname: example.com
+  bounce_to: bounce@example.com

@@ -6,10 +6,11 @@ production, nginx serves the compiled React assets directly and delegates only
 
 ## Development
 
-Copy `lib/config.example.rb` to `lib/config.rb` and adjust the mail and SMTP
-settings, then install dependencies:
+Copy `config/mail2www.example.yml` to `config/mail2www.yml`, adjust the mail
+folders and SMTP settings, then install dependencies:
 
 ```sh
+cp config/mail2www.example.yml config/mail2www.yml
 bundle install
 npm install
 ```
