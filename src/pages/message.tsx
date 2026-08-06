@@ -26,7 +26,9 @@ export function MessagePage({ folder, number }: { folder: string, number: string
     </div>
     <pre>{header}</pre>
     <hr />
-    <MessageBody text={mail.body} dangerous={dangerous} />
+    {mail.body.text && <MessageBody text={mail.body.text} dangerous={dangerous} />}
+    {mail.body.text && mail.body.html && <hr />}
+    {mail.body.html && <MessageBody text={mail.body.html} dangerous={dangerous} />}
     {mail.attachments.length > 0 && <><hr /><pre>添付ファイル:</pre><ul className="mail-attachments">
       {mail.attachments.map((file) => <li key={file.filename}><a href={api.attachmentUrl(folder, number, file.filename)} onClick={(event) => {
         if (!confirmAttachmentRisk()) event.preventDefault()

@@ -32,7 +32,10 @@ const messageSchema = z.object({
     subject: z.string(),
     date: z.nullable(z.string()),
   }),
-  body: z.string(),
+  body: z.object({
+    text: z.nullable(z.string()),
+    html: z.nullable(z.string()),
+  }),
   spam: z.boolean(),
   virus: z.nullable(z.string()),
   remote_user: z.nullable(z.string()),

@@ -9,6 +9,26 @@ require_relative '../lib/helpers'
 describe Mail2www::Helpers do
   include Mail2www::Helpers
 
+  describe 'get_body' do
+    it 'returns the body of a single-part HTML message' do
+      message = Mail.new do
+        content_type 'text/html; charset=UTF-8'
+        body '<p>HTML body</p>'
+      end
+
+      expect(get_body(message)).to eq(text: nil, html: '<p>HTML body</p>')
+    end
+
+    it 'separates a message with both plain text and HTML parts' do
+      message = Mail.new do
+        text_part { body 'Plain body' }
+        html_part { content_type 'text/html; charset=UTF-8'; body '<p>HTML body</p>' }
+      end
+
+      expect(get_body(message)).to eq(text: 'Plain body', html: '<p>HTML body</p>')
+    end
+  end
+
   describe "append_slash" do
     let (:url) { "http://example.com/example" }
     let (:url_end_with_slash) { "http://example.com/example/" }

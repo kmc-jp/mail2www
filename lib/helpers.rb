@@ -81,18 +81,23 @@ module Mail2www
       raw_text.force_encoding(encoding).encode('utf-8', invalid: :replace, undef: :replace)
     end
 
-    def get_body(message, toplevel: true)
-      if message.multipart?
-        message.parts.map do |part|
-          get_body(part, toplevel: false)
-        end.compact.join("\n---------------\n")
-      else
-        body_text(message) if toplevel || message.mime_type&.start_with?('text/')
+    def get_body(message)
+      text_part = message.text_part
+      html_part = message.html_part
+
+      unless message.multipart?
+        text_part ||= message if message.mime_type.nil? || message.mime_type == 'text/plain'
+        html_part ||= message if message.mime_type == 'text/html'
       end
+
+      {
+        text: text_part && body_text(text_part),
+        html: html_part && body_text(html_part)
+      }
     end
 
     def render_mail_body(mail)
-      body = get_body(mail)
+      body = get_body(mail).fetch(:text) || ''
       urls = URI.extract(body, %w(http https))
       surround_urls_with_a_tag(body, urls)
     end

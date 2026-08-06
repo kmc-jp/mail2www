@@ -62,7 +62,10 @@ describe Mail2www::App do
     body = JSON.parse(response.body)
 
     expect(response.status).to eq(200)
-    expect(body.fetch('body')).to include('Hello from the API.')
+    expect(body.fetch('body')).to eq(
+      'text' => "Hello from the API.\n",
+      'html' => nil
+    )
     expect(body.fetch('remote_user')).to eq('member')
   end
 
