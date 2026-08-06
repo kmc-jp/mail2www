@@ -47,5 +47,6 @@ Run both suites before deployment:
 
 ```sh
 bundle exec rspec
+npm run lint
 npm run build
 ```
