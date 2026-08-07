@@ -1,5 +1,10 @@
 import * as z from 'zod/mini'
 
+const datetimeSchema = z.codec(z.iso.datetime({ offset: true }), z.date(), {
+  decode: value => new Date(value),
+  encode: value => value.toISOString(),
+})
+
 const configSchema = z.object({
   title: z.string(),
   folders: z.array(z.string()),
@@ -10,7 +15,7 @@ const configSchema = z.object({
 const messageSummarySchema = z.object({
   number: z.string(),
   from: z.nullable(z.string()),
-  date: z.nullable(z.iso.datetime({ offset: true })),
+  date: z.nullable(datetimeSchema),
   subject: z.string(),
 })
 
@@ -36,7 +41,7 @@ const messageSchema = z.object({
     to: z.array(mailboxSchema),
     cc: z.array(mailboxSchema),
     subject: z.string(),
-    date: z.nullable(z.iso.datetime({ offset: true })),
+    date: z.nullable(datetimeSchema),
   }),
   body: z.object({
     text: z.nullable(z.string()),

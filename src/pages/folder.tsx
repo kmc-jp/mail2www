@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { api } from '../api'
 import { Loading, PageError } from '../components/Status'
 import { Pagination } from '../components/Pagination'
+import { formatRelativeAge } from '../date'
 
 export function FolderPage({ folder, page, perPage }: { folder: string, page: number, perPage: number }) {
   const query = useQuery(messagesQueryOptions(folder, page, perPage))
@@ -19,7 +20,7 @@ export function FolderPage({ folder, page, perPage }: { folder: string, page: nu
     <div className="autopagerize_page_element"><div className="main"><table id="mail_list">
       <thead><tr><th>time</th><th>no</th><th>from</th><th>subject</th></tr></thead>
       <tbody>{data.messages.map((message) => <tr key={message.number}>
-        <td className="time">{message.date ? formatMailDate(message.date) : ''}</td>
+        <td className="time">{message.date ? `${message.date.toLocaleDateString(undefined, { timeZone: 'Asia/Tokyo' })} (${formatRelativeAge(message.date)})` : ''}</td>
         <td className="num"><Link to="/$folder/$number" params={{ folder, number: message.number }}>{message.number}</Link></td>
         <td className="from">{message.from}</td>
         <td className="subj"><Link to="/$folder/$number" params={{ folder, number: message.number }}>{message.subject}</Link></td>
@@ -34,23 +35,3 @@ export const messagesQueryOptions = (folder: string, page: number, perPage: numb
     queryKey: ['messages', folder, page, perPage],
     queryFn: () => api.messages(folder, page, perPage),
   })
-
-function formatMailDate(value: string) {
-  const date = new Date(value)
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  const seconds = Math.max(0, (Date.now() - date.getTime()) / 1_000)
-  const minute = 60
-  const hour = 60 * minute
-  const fullDay = 24 * hour
-  let age: string
-
-  if (seconds < minute) age = `${Math.floor(seconds)}s`
-  else if (seconds < hour) age = `${Math.floor(seconds / minute)}m`
-  else if (seconds < fullDay) age = `${Math.floor(seconds / hour)}h`
-  else if (seconds <= 30 * fullDay) age = `${Math.floor(seconds / fullDay)}d`
-  else age = `${Math.floor(seconds / (30 * fullDay))}M`
-
-  return `${year}/${month}/${day} (${age})`
-}
