@@ -1,0 +1,21 @@
+From sender@example.test Wed Jan 07 00:00:00 2026
+From: Sender <sender@example.test>
+To: archive@example.test
+Subject: Virus-flagged message with attachment
+Date: Wed, 7 Jan 2026 00:00:00 +0000
+MIME-Version: 1.0
+X-Virus: Example-Test-Signature
+Content-Type: multipart/mixed; boundary="mail2www-virus-mixed-boundary"
+
+--mail2www-virus-mixed-boundary
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+This harmless test message was flagged as containing a virus.
+--mail2www-virus-mixed-boundary
+Content-Type: text/plain; charset=UTF-8; name="harmless.txt"
+Content-Disposition: attachment; filename="harmless.txt"
+Content-Transfer-Encoding: base64
+
+VGhpcyBpcyBhIGhhcm1sZXNzIHRlc3QgYXR0YWNobWVudC4K
+--mail2www-virus-mixed-boundary--

@@ -43,11 +43,11 @@ describe Mail2www::App do
     body = JSON.parse(response.body)
 
     expect(response.status).to eq(200)
-    expect(body).to include('page' => 0, 'pages' => 1, 'total' => 1)
+    expect(body).to include('page' => 0, 'pages' => 1, 'total' => 7)
     expect(body.fetch('messages').first).to include(
-      'number' => '1',
-      'subject' => 'API test',
-      'date' => '2026-01-01T00:00:00+00:00'
+      'number' => '7',
+      'subject' => 'Virus-flagged message with attachment',
+      'date' => '2026-01-07T00:00:00+00:00'
     )
   end
 

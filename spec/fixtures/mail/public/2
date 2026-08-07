@@ -1,0 +1,15 @@
+From sender@example.test Fri Jan 02 00:00:00 2026
+From: Sender <sender@example.test>
+To: archive@example.test
+Subject: HTML-only message
+Date: Fri, 2 Jan 2026 00:00:00 +0000
+MIME-Version: 1.0
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<!doctype html>
+<html>
+  <body>
+    <p>Hello from the <strong>HTML-only</strong> message.</p>
+  </body>
+</html>

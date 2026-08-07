@@ -1,0 +1,17 @@
+From spammer@example.test Tue Jan 06 00:00:00 2026
+From: Spammer <spammer@example.test>
+To: archive@example.test
+Subject: Spam message with link
+Date: Tue, 6 Jan 2026 00:00:00 +0000
+MIME-Version: 1.0
+X-Spam: YES
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<!doctype html>
+<html>
+  <body>
+    <p>This message was flagged as spam.</p>
+    <p><a href="https://spam.example.test/offer">Visit this suspicious link</a></p>
+  </body>
+</html>
