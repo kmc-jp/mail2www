@@ -78,31 +78,36 @@ async function request<T extends z.ZodMiniType>(path: string, schema: T, init?: 
   return schema.parseAsync(response)
 }
 
+function url(strings: TemplateStringsArray, ...values: (string | number)[]): string {
+  return values.reduce<string>((result, value, index) =>
+    result + encodeURIComponent(value) + strings[index + 1], strings[0])
+}
+
 export const api = {
   config: async () => request('/config', z.pipe(jsonResponse, configSchema)),
   messages: async (folder: string, page: number, perPage: number) =>
     request(
-      `/folders/${encodeURIComponent(folder)}/messages?page=${page}&per_page=${perPage}`,
+      url`/folders/${folder}/messages?page=${page}&per_page=${perPage}`,
       z.pipe(jsonResponse, messageListSchema),
     ),
   message: async (folder: string, number: string) =>
     request(
-      `/folders/${encodeURIComponent(folder)}/messages/${encodeURIComponent(number)}`,
+      url`/folders/${folder}/messages/${number}`,
       z.pipe(jsonResponse, messageSchema),
     ),
   source: async (folder: string, number: string) =>
     request(
-      `/folders/${encodeURIComponent(folder)}/messages/${encodeURIComponent(number)}/source`,
+      url`/folders/${folder}/messages/${number}/source`,
       z.pipe(jsonResponse, sourceSchema),
     ),
   forward: async (folder: string, number: string, to: string) =>
-    request(`/folders/${encodeURIComponent(folder)}/messages/${encodeURIComponent(number)}/forward`, emptyResponse, {
+    request(url`/folders/${folder}/messages/${number}/forward`, emptyResponse, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ to }),
     }),
   attachmentUrl: (folder: string, number: string, filename: string) =>
-    `/api/folders/${encodeURIComponent(folder)}/messages/${encodeURIComponent(number)}/attachments/${encodeURIComponent(filename)}`,
+    url`/api/folders/${folder}/messages/${number}/attachments/${filename}`,
   sourceDownloadUrl: (folder: string, number: string) =>
-    `/api/folders/${encodeURIComponent(folder)}/messages/${encodeURIComponent(number)}/source?download=1`,
+    url`/api/folders/${folder}/messages/${number}/source?download=1`,
 }
