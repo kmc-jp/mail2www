@@ -52,7 +52,6 @@ module Mail2www
 
     get '/api/config' do
       json(
-        title: settings.title,
         folders: settings.folders,
         ruby_version: RUBY_VERSION,
         remote_user:,

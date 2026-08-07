@@ -1,6 +1,4 @@
 development:
-  title: mail2www
-
   mail_dir: spec/fixtures/mail
   folders:
     - test

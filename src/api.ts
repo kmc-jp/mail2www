@@ -16,7 +16,6 @@ const datetimeSchema = z.codec(z.iso.datetime({ offset: true }), z.date(), {
 })
 
 const configSchema = z.object({
-  title: z.string(),
   folders: z.array(z.string()),
   ruby_version: z.string(),
   remote_user: z.nullable(z.string()),

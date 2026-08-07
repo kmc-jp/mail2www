@@ -13,7 +13,6 @@ describe 'config/mail2www.yml' do
   it 'loads the mail archive settings through Sinatra::ConfigFile' do
     expect(settings.mail_dir).to be_a(String)
     expect(settings.folders).to be_an(Array)
-    expect(settings.title).to be_a(String)
   end
 
   it 'loads the SMTP settings through Sinatra::ConfigFile' do

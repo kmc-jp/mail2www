@@ -11,7 +11,6 @@ describe Mail2www::App do
     Class.new(described_class).tap do |app|
       app.set :mail_dir, mail_root
       app.set :folders, %w[public]
-      app.set :title, 'Test archive'
       app.set :smtp_server, 'smtp.example.test'
       app.set :mailname, 'example.test'
       app.set :bounce_to, 'bounce@example.test'
@@ -32,9 +31,9 @@ describe Mail2www::App do
 
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)).to include(
-      'title' => 'Test archive', 'folders' => ['public'], 'ruby_version' => RUBY_VERSION,
-      'remote_user' => 'member'
+      'folders' => ['public'], 'ruby_version' => RUBY_VERSION, 'remote_user' => 'member'
     )
+    expect(JSON.parse(response.body)).not_to have_key('title')
     expect(JSON.parse(response.body)).not_to have_key('mails_per_page')
   end
 
