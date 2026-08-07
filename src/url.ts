@@ -4,31 +4,43 @@ export interface UrlMatch {
 }
 
 // RFC 3986 unreserved characters, reserved characters, and percent encoding.
-const urlCandidatePattern = /https?:\/\/[A-Za-z0-9\-._~:/?#[\]@!$&'()*+,;=%]+/g
-const trailingProsePunctuation = /[.,;:!?]$/
+const urlCandidatePattern = /https?:\/\/(?:(?!\]\(https?:\/\/)[A-Za-z0-9\-._~:/?#[\]@!$&'()*+,;=%])+/g
+const trailingProsePunctuation = '.,;:!?'
 const incompletePercentEncoding = /%(?![A-Fa-f0-9]{2})/
-
-function count(value: string, character: string) {
-  return [...value].filter(item => item === character).length
-}
 
 function trimUrlCandidate(candidate: string, precedingCharacter: string | undefined) {
   const incompleteEncoding = candidate.search(incompletePercentEncoding)
-  let url = incompleteEncoding === -1 ? candidate : candidate.slice(0, incompleteEncoding)
+  const url = incompleteEncoding === -1 ? candidate : candidate.slice(0, incompleteEncoding)
+  let parenthesisBalance = 0
+  let bracketBalance = 0
 
-  let changed = true
-  while (changed) {
-    const previous = url
-    url = url.replace(trailingProsePunctuation, '')
-
-    if (url.endsWith(')') && count(url, ')') > count(url, '(')) url = url.slice(0, -1)
-    if (url.endsWith(']') && count(url, ']') > count(url, '[')) url = url.slice(0, -1)
-    if (url.endsWith("'") && precedingCharacter === "'") url = url.slice(0, -1)
-    if (url.endsWith('*') && precedingCharacter === '*') url = url.slice(0, -1)
-    changed = url !== previous
+  for (const character of url) {
+    if (character === '(') parenthesisBalance--
+    if (character === ')') parenthesisBalance++
+    if (character === '[') bracketBalance--
+    if (character === ']') bracketBalance++
   }
 
-  return url
+  let end = url.length
+  while (end > 0) {
+    const character = url[end - 1]
+
+    if (trailingProsePunctuation.includes(character)) {
+      end--
+    } else if (character === ')' && parenthesisBalance > 0) {
+      parenthesisBalance--
+      end--
+    } else if (character === ']' && bracketBalance > 0) {
+      bracketBalance--
+      end--
+    } else if ((character === "'" || character === '*') && character === precedingCharacter) {
+      end--
+    } else {
+      break
+    }
+  }
+
+  return url.slice(0, end)
 }
 
 export function findUrls(text: string): UrlMatch[] {
