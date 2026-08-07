@@ -94,6 +94,13 @@ test('extracts the label and destination from a Markdown link', () => {
   ])
 })
 
+test('trims long runs of trailing prose in one pass', () => {
+  const suffix = ')'.repeat(20_000) + ']'.repeat(20_000) + '.'.repeat(20_000)
+  expect(urls(`https://example.test/path${suffix}`)).toEqual([
+    'https://example.test/path',
+  ])
+})
+
 test('rejects URLs without a host', () => {
   expect(urls('http:///path and https://?query')).toEqual([])
 })
