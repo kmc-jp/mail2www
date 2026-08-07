@@ -26,8 +26,7 @@ module Mail2www
     end
 
     def get_date(mail)
-      (mail.date && mail.date.to_s) ||
-        (mail.envelope_date && mail.envelope_date.to_s)
+      mail.date || mail.envelope_date
     end
 
     def body_text(message)

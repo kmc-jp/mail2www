@@ -44,4 +44,13 @@ describe Mail2www::Helpers do
     end
   end
 
+  describe 'get_date' do
+    it 'returns the message DateTime without converting it to a string' do
+      message = Mail.new(date: 'Fri, 7 Aug 2026 12:34:56 +0900')
+
+      expect(get_date(message)).to be_a(DateTime)
+      expect(get_date(message)).to eq(message.date)
+    end
+  end
+
 end

@@ -70,7 +70,7 @@ module Mail2www
 
       messages = selected.map do |number|
         mail = read_mail(folder, number)
-        date = parse_mail_date(mail)
+        date = get_date(mail)
         {
           number: number,
           from: get_addresses(mail, :from),
@@ -96,7 +96,7 @@ module Mail2www
           to: get_addresses(mail, :to),
           cc: get_addresses(mail, :cc),
           subject: get_subject(mail),
-          date: parse_mail_date(mail)&.iso8601
+          date: get_date(mail)&.iso8601
         },
         body: get_body(mail),
         spam: spam?(mail),
@@ -205,13 +205,6 @@ module Mail2www
       IO.binread(mail_path(folder, mailnum))
     rescue Errno::ENOENT, Errno::EISDIR
       json_error(404, 'Mail not found')
-    end
-
-    def parse_mail_date(mail)
-      value = get_date(mail)
-      Time.parse(value) if value
-    rescue ArgumentError
-      nil
     end
 
     def generate_message_id(mailname)
