@@ -45,6 +45,7 @@ describe Mail2www::App do
     expect(body).to include('page' => 0, 'pages' => 1, 'total' => 7)
     expect(body.fetch('messages').first).to include(
       'number' => '7',
+      'from' => [{ 'name' => 'Sender', 'address' => 'sender@example.test' }],
       'subject' => 'Virus-flagged message with attachment',
       'date' => '2026-01-07T00:00:00+00:00'
     )

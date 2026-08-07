@@ -21,9 +21,14 @@ const configSchema = z.object({
   remote_user: z.nullable(z.string()),
 })
 
+const mailboxSchema = z.object({
+  name: z.nullable(z.string()),
+  address: z.string(),
+})
+
 const messageSummarySchema = z.object({
   number: z.string(),
-  from: z.nullable(z.string()),
+  from: z.array(mailboxSchema),
   date: z.nullable(datetimeSchema),
   subject: z.string(),
 })
@@ -35,11 +40,6 @@ const messageListSchema = z.object({
   pages: z.number(),
   total: z.number(),
   messages: z.array(messageSummarySchema),
-})
-
-const mailboxSchema = z.object({
-  name: z.nullable(z.string()),
-  address: z.string(),
 })
 
 const messageSchema = z.object({

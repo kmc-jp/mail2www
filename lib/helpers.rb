@@ -7,12 +7,6 @@ require 'sinatra/base'
 
 module Mail2www
   module Helpers
-    def get_from(mail)
-      mail.from_addrs.join(',').encode('utf-8').scrub
-    rescue Encoding::UndefinedConversionError
-      "'From' contains invalid characters"
-    end
-
     def get_addresses(mail, field_name)
       field = mail[field_name]
       return [] unless field

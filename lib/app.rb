@@ -73,7 +73,7 @@ module Mail2www
         date = parse_mail_date(mail)
         {
           number: number,
-          from: get_from(mail),
+          from: get_addresses(mail, :from),
           date: date&.iso8601,
           subject: get_subject(mail)
         }

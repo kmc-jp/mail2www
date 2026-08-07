@@ -1,6 +1,7 @@
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { api, type Mailbox } from '../api'
+import { api } from '../api'
+import { formatAddresses } from '../addresses'
 import { useAppConfig } from '../components/AppConfig'
 import { MessageBody } from '../components/MessageBody'
 import { Loading, PageError } from '../components/Status'
@@ -16,7 +17,6 @@ export function MessagePage({ folder, number }: { folder: string, number: string
   const remoteUser = config.remote_user
   const dangerous = mail.spam || Boolean(mail.virus)
   const confirmAttachmentRisk = () => !dangerous || window.confirm('この添付ファイルは危険な可能性があります。本当にダウンロードしますか？')
-  const formatAddresses = (addresses: Mailbox[]) => addresses.map(({ name, address }) => name ? `${name} <${address}>` : address).join(', ') || '(none)'
   const headers = [
     ['From', formatAddresses(mail.headers.from)],
     ['To', formatAddresses(mail.headers.to)],
