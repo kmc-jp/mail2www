@@ -1,0 +1,24 @@
+From sender@example.test Sat Jan 03 00:00:00 2026
+From: Sender <sender@example.test>
+To: archive@example.test
+Subject: Multipart alternative message
+Date: Sat, 3 Jan 2026 00:00:00 +0000
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="mail2www-alternative-boundary"
+
+--mail2www-alternative-boundary
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Hello from the plain-text part.
+--mail2www-alternative-boundary
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<!doctype html>
+<html>
+  <body>
+    <p>Hello from the <strong>HTML part</strong>.</p>
+  </body>
+</html>
+--mail2www-alternative-boundary--

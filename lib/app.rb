@@ -52,9 +52,9 @@ module Mail2www
 
     get '/api/config' do
       json(
-        title: settings.title,
         folders: settings.folders,
-        ruby_version: RUBY_VERSION
+        ruby_version: RUBY_VERSION,
+        remote_user:,
       )
     end
 
@@ -70,10 +70,10 @@ module Mail2www
 
       messages = selected.map do |number|
         mail = read_mail(folder, number)
-        date = parse_mail_date(mail)
+        date = get_date(mail)
         {
           number: number,
-          from: get_from(mail),
+          from: get_addresses(mail, :from),
           date: date&.iso8601,
           subject: get_subject(mail)
         }
@@ -92,16 +92,15 @@ module Mail2www
         folder: folder,
         number: mailnum,
         headers: {
-          from: get_from(mail),
-          to: get_to(mail),
-          cc: get_cc(mail),
+          from: get_addresses(mail, :from),
+          to: get_addresses(mail, :to),
+          cc: get_addresses(mail, :cc),
           subject: get_subject(mail),
-          date: get_date(mail)
+          date: get_date(mail)&.iso8601
         },
         body: get_body(mail),
         spam: spam?(mail),
         virus: virus_detected?(mail),
-        remote_user: remote_user,
         attachments: mail.attachments.map do |attachment|
           { filename: attachment.filename, content_type: attachment.mime_type }
         end
@@ -206,13 +205,6 @@ module Mail2www
       IO.binread(mail_path(folder, mailnum))
     rescue Errno::ENOENT, Errno::EISDIR
       json_error(404, 'Mail not found')
-    end
-
-    def parse_mail_date(mail)
-      value = get_date(mail)
-      Time.parse(value) if value
-    rescue ArgumentError
-      nil
     end
 
     def generate_message_id(mailname)

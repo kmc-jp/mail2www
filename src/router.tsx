@@ -7,7 +7,7 @@ import {
   redirect,
 } from '@tanstack/react-router'
 import * as z from 'zod/mini'
-import { api } from './api'
+import { AppConfigProvider, appConfigQueryOptions } from './components/AppConfig'
 import { Layout } from './components/Layout'
 import { PageError } from './components/Status'
 import { FolderPage, messagesQueryOptions } from './pages/folder'
@@ -17,7 +17,7 @@ import { SourcePage, sourceQueryOptions } from './pages/source'
 type RouterContext = { queryClient: QueryClient }
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
-  component: () => <Layout><Outlet /></Layout>,
+  component: () => <AppConfigProvider><Layout><Outlet /></Layout></AppConfigProvider>,
   errorComponent: ({ error }) => <PageError error={error} />,
   notFoundComponent: () => <PageError error={new Error('Page not found')} />,
 })
@@ -26,7 +26,7 @@ const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   beforeLoad: async ({ context }) => {
-    const config = await context.queryClient.ensureQueryData({ queryKey: ['config'], queryFn: api.config })
+    const config = await context.queryClient.ensureQueryData(appConfigQueryOptions)
     if (!config.folders[0]) throw new Error('No mail folders are configured')
     throw redirect({ to: '/$folder', params: { folder: config.folders[0] } })
   },

@@ -1,0 +1,47 @@
+From sender@example.test Mon Jan 05 00:00:00 2026
+From: Sender <sender@example.test>
+To: archive@example.test
+Subject: Multipart message with inline image and attachment
+Date: Mon, 5 Jan 2026 00:00:00 +0000
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="mail2www-inline-mixed-boundary"
+
+--mail2www-inline-mixed-boundary
+Content-Type: multipart/related; boundary="mail2www-related-boundary"
+
+--mail2www-related-boundary
+Content-Type: multipart/alternative; boundary="mail2www-inline-alternative-boundary"
+
+--mail2www-inline-alternative-boundary
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Hello from the plain-text part. The HTML part contains an inline image.
+--mail2www-inline-alternative-boundary
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<!doctype html>
+<html>
+  <body>
+    <p>Hello from the HTML part.</p>
+    <img src="cid:inline-image@example.test" alt="Inline image">
+  </body>
+</html>
+--mail2www-inline-alternative-boundary--
+--mail2www-related-boundary
+Content-Type: image/png; name="pixel.png"
+Content-Disposition: inline; filename="pixel.png"
+Content-Transfer-Encoding: base64
+Content-ID: <inline-image@example.test>
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk
+YAAAAAYAAjCB0C8AAAAASUVORK5CYII=
+--mail2www-related-boundary--
+--mail2www-inline-mixed-boundary
+Content-Type: text/plain; charset=UTF-8; name="notes.txt"
+Content-Disposition: attachment; filename="notes.txt"
+Content-Transfer-Encoding: base64
+
+SGVsbG8gZnJvbSB0aGUgdGV4dCBhdHRhY2htZW50Lgo=
+--mail2www-inline-mixed-boundary--

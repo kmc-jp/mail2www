@@ -11,7 +11,6 @@ describe Mail2www::App do
     Class.new(described_class).tap do |app|
       app.set :mail_dir, mail_root
       app.set :folders, %w[public]
-      app.set :title, 'Test archive'
       app.set :smtp_server, 'smtp.example.test'
       app.set :mailname, 'example.test'
       app.set :bounce_to, 'bounce@example.test'
@@ -28,12 +27,13 @@ describe Mail2www::App do
   end
 
   it 'returns frontend configuration' do
-    response = request.get('/api/config')
+    response = request.get('/api/config', 'HTTP_X_FORWARDED_USER' => 'member')
 
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)).to include(
-      'title' => 'Test archive', 'folders' => ['public'], 'ruby_version' => RUBY_VERSION
+      'folders' => ['public'], 'ruby_version' => RUBY_VERSION, 'remote_user' => 'member'
     )
+    expect(JSON.parse(response.body)).not_to have_key('title')
     expect(JSON.parse(response.body)).not_to have_key('mails_per_page')
   end
 
@@ -42,11 +42,12 @@ describe Mail2www::App do
     body = JSON.parse(response.body)
 
     expect(response.status).to eq(200)
-    expect(body).to include('page' => 0, 'pages' => 1, 'total' => 1)
+    expect(body).to include('page' => 0, 'pages' => 1, 'total' => 7)
     expect(body.fetch('messages').first).to include(
-      'number' => '1',
-      'subject' => 'API test',
-      'date' => '2026-01-01T00:00:00+00:00'
+      'number' => '7',
+      'from' => [{ 'name' => 'Sender', 'address' => 'sender@example.test' }],
+      'subject' => 'Virus-flagged message with attachment',
+      'date' => '2026-01-07T00:00:00+00:00'
     )
   end
 
@@ -62,8 +63,17 @@ describe Mail2www::App do
     body = JSON.parse(response.body)
 
     expect(response.status).to eq(200)
-    expect(body.fetch('body')).to include('Hello from the API.')
-    expect(body.fetch('remote_user')).to eq('member')
+    expect(body.fetch('body')).to eq(
+      'text' => "Hello from the API.\n",
+      'html' => nil
+    )
+    expect(body.fetch('headers')).to include(
+      'from' => [{ 'name' => 'Sender', 'address' => 'sender@example.test' }],
+      'to' => [{ 'name' => nil, 'address' => 'archive@example.test' }],
+      'cc' => [],
+      'date' => '2026-01-01T00:00:00+00:00'
+    )
+    expect(body).not_to have_key('remote_user')
   end
 
   it 'lists folders that are not in the navigation configuration' do

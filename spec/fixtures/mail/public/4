@@ -1,0 +1,20 @@
+From sender@example.test Sun Jan 04 00:00:00 2026
+From: Sender <sender@example.test>
+To: archive@example.test
+Subject: Message with attachment
+Date: Sun, 4 Jan 2026 00:00:00 +0000
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="mail2www-mixed-boundary"
+
+--mail2www-mixed-boundary
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+This message has an attachment.
+--mail2www-mixed-boundary
+Content-Type: text/plain; charset=UTF-8; name="hello.txt"
+Content-Disposition: attachment; filename="hello.txt"
+Content-Transfer-Encoding: base64
+
+SGVsbG8gZnJvbSB0aGUgYXR0YWNobWVudC4K
+--mail2www-mixed-boundary--
