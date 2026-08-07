@@ -4,7 +4,7 @@ export interface UrlMatch {
 }
 
 // RFC 3986 unreserved characters, reserved characters, and percent encoding.
-const urlCandidatePattern = /https?:\/\/[A-Za-z0-9\-._~:/?#[\]@!$&'()*+,;=%]+/g
+const urlCandidatePattern = /https?:\/\/(?:(?!\]\(https?:\/\/)[A-Za-z0-9\-._~:/?#[\]@!$&'()*+,;=%])+/g
 const trailingProsePunctuation = /[.,;:!?]$/
 const incompletePercentEncoding = /%(?![A-Fa-f0-9]{2})/
 

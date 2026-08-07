@@ -87,6 +87,13 @@ test('keeps a trailing star without an opening wrapper', () => {
   ])
 })
 
+test('extracts the label and destination from a Markdown link', () => {
+  expect(urls('[https://example.com](https://example.com)')).toEqual([
+    'https://example.com',
+    'https://example.com',
+  ])
+})
+
 test('rejects URLs without a host', () => {
   expect(urls('http:///path and https://?query')).toEqual([])
 })
