@@ -42,6 +42,12 @@ describe Mail2www::Helpers do
       )
       expect(get_addresses(message, :cc)).to eq([])
     end
+
+    it 'returns an empty array for a malformed address header' do
+      message = Mail.read_from_string("From: invalid address <\n\nBody")
+
+      expect(get_addresses(message, :from)).to eq([])
+    end
   end
 
   describe 'get_date' do

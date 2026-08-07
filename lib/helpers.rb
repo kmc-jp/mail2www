@@ -9,7 +9,7 @@ module Mail2www
   module Helpers
     def get_addresses(mail, field_name)
       field = mail[field_name]
-      return [] unless field
+      return [] unless field&.element
 
       field.element.addresses.map do |mailbox|
         {
