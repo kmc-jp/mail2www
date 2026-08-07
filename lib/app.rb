@@ -223,8 +223,7 @@ module Mail2www
       validate_local_part!(to)
       mailname = settings.mailname
       recipient = "#{to}@#{mailname}"
-      bounce_to = settings.bounce_to
-      bounce_to = bounce_to.call(recipient) if bounce_to.respond_to?(:call)
+      bounce_to = settings.bounce_to.gsub('%{to}', recipient)
       message = read_raw_mail(folder, mailnum).sub(/\AFrom .*?\n/, '')
       fields = {
         'List-Id' => "<#{folder}.mail2www.#{mailname}>",

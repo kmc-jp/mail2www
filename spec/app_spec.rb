@@ -92,4 +92,41 @@ describe Mail2www::App do
     response = request.get('/api/folders/public/messages/not-a-number')
     expect(response.status).to eq(404)
   end
+
+  describe 'POST /api/folders/:folder/messages/:mailnum/forward' do
+    let(:smtp) { instance_double(Net::SMTP) }
+
+    before do
+      allow(Net::SMTP).to receive(:start).with('smtp.example.test').and_yield(smtp)
+      allow(smtp).to receive(:send_message)
+    end
+
+    it 'uses a fixed bounce address' do
+      response = request.post(
+        '/api/folders/public/messages/1/forward',
+        'CONTENT_TYPE' => 'application/json',
+        input: JSON.generate(to: 'member')
+      )
+
+      expect(response.status).to eq(204)
+      expect(smtp).to have_received(:send_message).with(
+        anything, 'bounce@example.test', 'member@example.test'
+      )
+    end
+
+    it 'expands the recipient in a bounce address template' do
+      app_class.set :bounce_to, 'bounce+%{to}'
+
+      response = request.post(
+        '/api/folders/public/messages/1/forward',
+        'CONTENT_TYPE' => 'application/json',
+        input: JSON.generate(to: 'member')
+      )
+
+      expect(response.status).to eq(204)
+      expect(smtp).to have_received(:send_message).with(
+        anything, 'bounce+member@example.test', 'member@example.test'
+      )
+    end
+  end
 end

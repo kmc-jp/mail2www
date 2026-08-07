@@ -25,6 +25,34 @@ npm run dev
 Vite proxies `/api` to port 9292. The UI uses React Compiler, TanStack Router,
 TanStack Query, and `zod/mini` response validation.
 
+## Configuration
+
+Configuration is read from `config/mail2www.yml`. Settings are grouped by the
+Sinatra environment, such as `development` or `production`:
+
+```yaml
+production:
+  mail_dir: /var/spool/mail2www
+  folders:
+    - info
+    - spam
+
+  smtp_server: smtp.example.com
+  mailname: example.com
+  bounce_to: "bounce+%{to}"
+```
+
+- `mail_dir` is the directory containing the mail archive. Each subdirectory is
+  exposed as a folder, and its numerically named files are exposed as messages.
+- `folders` lists the folders shown in the navigation, in display order.
+- `smtp_server` is the SMTP server used to forward messages.
+- `mailname` is appended to the requested forwarding name to form its recipient
+  address. For example, `member` becomes `member@example.com`.
+- `bounce_to` is the SMTP envelope sender. It may be a fixed address such as
+  `bounce@example.com`, or contain `%{to}`, which expands to the complete
+  forwarding recipient. For example, `bounce+%{to}` becomes
+  `bounce+member@example.com` when forwarding to `member@example.com`.
+
 ## Production
 
 Build immutable frontend assets during deployment:
