@@ -225,7 +225,7 @@ module Mail2www
         'Resent-Message-ID' => generate_message_id(mailname)
       }
       message.prepend(fields.map { |name, value| "#{name}: #{value}\r\n" }.join)
-      Net::SMTP.start(settings.smtp_server) do |smtp|
+      Net::SMTP.start(settings.smtp_server, starttls: false) do |smtp|
         smtp.send_message(message, bounce_to, recipient)
       end
     end

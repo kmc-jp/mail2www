@@ -107,7 +107,8 @@ describe Mail2www::App do
     let(:smtp) { instance_double(Net::SMTP) }
 
     before do
-      allow(Net::SMTP).to receive(:start).with('smtp.example.test').and_yield(smtp)
+      allow(Net::SMTP).to receive(:start)
+        .with('smtp.example.test', starttls: false).and_yield(smtp)
       allow(smtp).to receive(:send_message)
     end
 
