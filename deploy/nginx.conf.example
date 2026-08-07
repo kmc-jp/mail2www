@@ -1,0 +1,28 @@
+server {
+    listen 80;
+    server_name mail.example.com;
+
+    # npm run build writes the React application here. nginx serves it directly.
+    root /srv/mail2www/current/dist;
+    index index.html;
+
+    location /api {
+        passenger_enabled on;
+        passenger_app_root /srv/mail2www/current;
+        passenger_document_root /srv/mail2www/current/dist;
+        passenger_ruby /usr/bin/ruby;
+
+        # Preserve an authenticated user supplied by an auth_request or proxy.
+        passenger_set_header X-Forwarded-User $remote_user;
+    }
+
+    location /assets/ {
+        try_files $uri =404;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

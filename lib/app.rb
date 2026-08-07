@@ -1,176 +1,218 @@
-# -*- coding: utf-8 -*-
+# frozen_string_literal: true
+# encoding: utf-8
 
-require 'rubygems'
 require 'bundler/setup'
-require 'securerandom'
-require 'time'
-require 'erb'
+require 'json'
 require 'mail'
-require 'sinatra/base'
 require 'net/smtp'
+require 'securerandom'
+require 'sinatra/base'
+require 'sinatra/config_file'
+require 'time'
 
 require_relative 'helpers'
 
 module Mail2www
+  # JSON API for the mail2www React application.
   class App < Sinatra::Base
     helpers Mail2www::Helpers
+    register Sinatra::ConfigFile
+
+    SAFE_ATTACHMENT_CONTENT_TYPES = %w[application/pdf image/jpeg image/png].freeze
+
+    set :root, File.expand_path('..', __dir__)
+    config_file 'config/mail2www.yml'
 
     configure :development do
-      Bundler.require :development
+      require 'sinatra/reloader'
       register Sinatra::Reloader
     end
 
-    set :views, "#{File.dirname(__FILE__)}/../views"
-    set :public_folder, "#{File.dirname(__FILE__)}/../public"
     set :protection, except: :path_traversal
+    set :show_exceptions, false
 
-    def initialize(config)
-      @config = config
-      @title = @config[:title]
-      @config[:prefix] = ENV['SCRIPT_NAME'] unless
-        ENV['SCRIPT_NAME'].nil? || ENV['SCRIPT_NAME'].empty?
-      super
+    before '/api/*' do
+      content_type :json
     end
 
-    get '/' do
-      redirect to(@config[:folders][0])
+    error Sinatra::NotFound do
+      json_error(404, env['sinatra.error']&.message || 'Not found')
     end
 
-    # Stop annoying errors
-    get '/favicon.ico' do
+    error do
+      error = env['sinatra.error']
+      warn error.full_message if settings.development?
+      json_error(500, 'Internal server error')
     end
 
-    SAFE_ATTACHMENT_CONTENT_TYPES = %w[
-      application/pdf
-      image/jpeg
-      image/png
-    ]
+    get '/api' do
+      content_type :json
+      json('OK')
+    end
 
-    get '/:folder/:mailnum/attachment/:filename' do |folder, mailnum, filename|
+    get '/api/config' do
+      json(
+        title: settings.title,
+        folders: settings.folders,
+        ruby_version: RUBY_VERSION
+      )
+    end
+
+    get '/api/folders/:folder/messages' do |folder|
+      validate_folder!(folder)
+      page = integer_param('page', default: 0, minimum: 0)
+      per_page = integer_param('per_page', minimum: 1, maximum: 100)
+
+      files = mail_numbers(folder)
+      pages = (files.size.to_f / per_page).ceil
+      page = 0 unless pages.positive? && page.between?(0, pages - 1)
+      selected = files.slice(page * per_page, per_page) || []
+
+      messages = selected.map do |number|
+        mail = read_mail(folder, number)
+        date = parse_mail_date(mail)
+        {
+          number: number,
+          from: get_from(mail),
+          date: date&.iso8601,
+          subject: get_subject(mail)
+        }
+      end
+
+      json(folder: folder, page: page, per_page: per_page, pages: pages,
+           total: files.size, messages: messages)
+    end
+
+    get '/api/folders/:folder/messages/:mailnum' do |folder, mailnum|
+      validate_folder!(folder)
+      validate_mailnum!(mailnum)
       mail = read_mail(folder, mailnum)
-      file = find_attachment_by_name(mail, filename) or halt(404, 'Attachment not found')
+
+      json(
+        folder: folder,
+        number: mailnum,
+        headers: {
+          from: get_from(mail),
+          to: get_to(mail),
+          cc: get_cc(mail),
+          subject: get_subject(mail),
+          date: get_date(mail)
+        },
+        body: get_body(mail),
+        spam: spam?(mail),
+        virus: virus_detected?(mail),
+        remote_user: remote_user,
+        attachments: mail.attachments.map do |attachment|
+          { filename: attachment.filename, content_type: attachment.mime_type }
+        end
+      )
+    end
+
+    get '/api/folders/:folder/messages/:mailnum/source' do |folder, mailnum|
+      validate_folder!(folder)
+      validate_mailnum!(mailnum)
+      message = read_raw_mail(folder, mailnum)
+
+      if truthy_param?('download')
+        content_type 'message/rfc822'
+        attachment "#{folder}-#{mailnum}.eml"
+        message.sub(/\AFrom .*?\n/, '')
+      else
+        json(source: message.force_encoding('utf-8').scrub { |bytes| "<#{bytes.unpack1('H*')}>" })
+      end
+    end
+
+    get '/api/folders/:folder/messages/:mailnum/attachments/:filename' do |folder, mailnum, filename|
+      validate_folder!(folder)
+      validate_mailnum!(mailnum)
+      file = read_mail(folder, mailnum).attachments.find { |item| item.filename == filename }
+      halt 404, json(error: 'Attachment not found') unless file
 
       if SAFE_ATTACHMENT_CONTENT_TYPES.include?(file.mime_type)
-        headers['Content-Type'] = file.mime_type
+        content_type file.mime_type
       else
-        headers['Content-Type'] = 'application/octet-stream'
-        headers['Content-Disposition'] = 'attachment'
+        content_type 'application/octet-stream'
+        attachment file.filename
       end
-      headers['X-Content-Type-Options'] = 'nosniff'
-
+      headers 'X-Content-Type-Options' => 'nosniff'
       file.decoded
     end
 
-    get '/:folder/:mailnum' do |folder, mailnum|
-      mail(folder, mailnum)
-    end
-
-    get '/:folder/:mailnum/source' do |folder, mailnum|
-      download = !params.fetch(:download, '').empty?
-      mail_raw(folder, mailnum, download: download)
-    end
-
-    post '/:folder/:mailnum/forward' do |folder, mailnum|
-      to = params.fetch(:to)
+    post '/api/folders/:folder/messages/:mailnum/forward' do |folder, mailnum|
+      validate_folder!(folder)
+      validate_mailnum!(mailnum)
+      payload = request.body.read
+      payload = payload.empty? ? {} : JSON.parse(payload)
+      to = payload.fetch('to')
       forward_mail(folder, mailnum, to: to)
-
-      redirect to("/#{folder}/#{mailnum}")
-    end
-
-    get '/:folder' do |folder|
-      page = params['page'].to_i
-      per_page = @config[:mails_per_page]
-      per_page = params['pp'].to_i unless params['pp'].nil?
-      list(folder, page, per_page)
+      status 204
+      body ''
+    rescue JSON::ParserError, KeyError
+      json_error(400, 'A JSON body containing "to" is required')
+    rescue ArgumentError => e
+      json_error(422, e.message)
     end
 
     private
 
-    def find_attachment_by_name(mail, filename)
-      mail.attachments.find do |attachment|
-        attachment.filename == filename
-      end
+    def json(value)
+      JSON.generate(value)
     end
 
-    def list(folder, page, mails_per_page)
-      mails_path = File.join(@config[:mail_dir], folder)
-      halt(404, 'Folder not found') unless File.directory?(mails_path)
+    def json_error(status_code, message)
+      content_type :json
+      halt status_code, json(error: message)
+    end
 
-      files = Dir.entries(mails_path).map! { |file| file.to_i }
-        .sort.reject { |n| n == 0 }.reverse
-      pages = files.size / mails_per_page
-      pages += 1 if files.size % mails_per_page != 0
-      page = 0 unless page.between?(0, pages - 1)
+    def integer_param(name, default: nil, minimum:, maximum: nil)
+      value = params[name] ? Integer(params[name], 10) : default
+      raise ArgumentError if value.nil?
+      raise ArgumentError if value < minimum || (maximum && value > maximum)
+      value
+    rescue ArgumentError
+      json_error(400, "#{name} must be an integer between #{minimum} and #{maximum || 'infinity'}")
+    end
 
-      files = files.slice(page * mails_per_page, mails_per_page)
-      mails = files.map do |num|
-        mail_path = File.join(mails_path, num.to_s)
-        mail = Mail.read(mail_path)
-        t = Time.parse(get_date(mail)) || Time.now
-        time = "#{t.month}/#{t.day} (#{how_old(t)})"
+    def truthy_param?(name)
+      %w[1 true yes].include?(params.fetch(name, '').downcase)
+    end
 
-        [num.to_s, get_from(mail), time, get_subject(mail)]
-      end
+    def validate_folder!(folder)
+      json_error(404, 'Folder not found') if folder.start_with?('.') || folder.include?('/')
+    end
 
-      vars = {
-        folder: folder, pages: pages, page: page, mails: mails,
-        mails_per_page: mails_per_page,
-        custom_pp: mails_per_page != @config[:mails_per_page]
-      }
-      erb :list, locals: vars
+    def validate_mailnum!(mailnum)
+      json_error(404, 'Mail not found') unless /\A[1-9]\d*\z/.match?(mailnum)
+    end
+
+    def mail_numbers(folder)
+      path = File.join(settings.mail_dir, folder)
+      json_error(404, 'Folder not found') unless File.directory?(path)
+      Dir.children(path).filter_map { |name| name if /\A[1-9]\d*\z/.match?(name) }
+         .sort_by(&:to_i).reverse
     end
 
     def mail_path(folder, mailnum)
-      File.join(@config[:mail_dir], folder, mailnum)
+      File.join(settings.mail_dir, folder, mailnum.to_s)
     end
 
     def read_mail(folder, mailnum)
-      path = mail_path(folder, mailnum)
-      s = IO.binread(path)
-      s2 = s.clone
-      s.force_encoding("utf-8")
-      if s.valid_encoding?
-        Mail.read_from_string(s)
-      else
-        Mail.read_from_string(s2)
-      end
-    rescue Errno::ENOENT
-      halt 404, 'Mail not found'
+      raw = read_raw_mail(folder, mailnum)
+      utf8 = raw.dup.force_encoding(Encoding::UTF_8)
+      Mail.read_from_string(utf8.valid_encoding? ? utf8 : raw)
     end
 
-    def mail(folder, mailnum)
-      mail = read_mail(folder, mailnum)
-
-      @title += "(#{folder || '(none)'}) / #{get_subject(mail)}"
-      vars = {
-        folder: folder,
-        mail: mail,
-        mailnum: mailnum,
-        remote_user: remote_user,
-      }
-      erb :mail, locals: vars
+    def read_raw_mail(folder, mailnum)
+      IO.binread(mail_path(folder, mailnum))
+    rescue Errno::ENOENT, Errno::EISDIR
+      json_error(404, 'Mail not found')
     end
 
-    def mail_raw(folder, mailnum, download:)
-      begin
-        message = IO.binread(mail_path(folder, mailnum))
-      rescue Errno::ENOENT
-        halt 404, 'Mail not found'
-      end
-
-      if download
-        content_type :eml
-        attachment "#{folder}-#{mailnum}.eml"
-        message.sub(/\AFrom .*?\n/, '')  # first line may contain envelope header
-      else
-        @title += "(#{folder || '(none)'}) / #{mailnum}"
-        vars = {
-          folder: folder,
-          mailnum: mailnum,
-          message: message.force_encoding('utf-8').scrub{|bs| "<#{bs.unpack1('H*')}>" },
-        }
-        erb :rawmail, locals: vars
-      end
+    def parse_mail_date(mail)
+      value = get_date(mail)
+      Time.parse(value) if value
+    rescue ArgumentError
+      nil
     end
 
     def generate_message_id(mailname)
@@ -178,46 +220,27 @@ module Mail2www
     end
 
     def forward_mail(folder, mailnum, to:)
-      # Care should be taken not to modify any single byte in the message body.
-      # Doing so will make cryptographically signed (DKIM) mails unverifiable.
-      # TODO: It might be necessary to implement "From munging" for non-DKIM messages.
-
       validate_local_part!(to)
-      mailname = @config.fetch(:mailname)
-      to = "#{to}@#{mailname}"
-      bounce_to = @config.fetch(:bounce_to)
-      bounce_to = bounce_to.call(to) if bounce_to.respond_to?(:call)
-
-      begin
-        message = IO.read(mail_path(folder, mailnum)).sub(/\AFrom .*?\n/, '')  # first line may contain envelope header
-      rescue Errno::ENOENT
-        halt 404, 'Mail not found'
-      end
-
-      resent_fields = {
+      mailname = settings.mailname
+      recipient = "#{to}@#{mailname}"
+      bounce_to = settings.bounce_to
+      bounce_to = bounce_to.call(recipient) if bounce_to.respond_to?(:call)
+      message = read_raw_mail(folder, mailnum).sub(/\AFrom .*?\n/, '')
+      fields = {
         'List-Id' => "<#{folder}.mail2www.#{mailname}>",
-        'Resent-From' => to,
-        'Resent-To' => to,
+        'Resent-From' => recipient,
+        'Resent-To' => recipient,
         'Resent-Date' => Time.now.rfc2822,
-        'Resent-Message-ID' => generate_message_id(mailname),
+        'Resent-Message-ID' => generate_message_id(mailname)
       }
-      message.prepend(resent_fields.map {|name, value| "#{name}: #{value}\r\n" }.join)
-
-      smtp_envelope_from = bounce_to
-      smtp_envelope_to = to
-      Net::SMTP.start(@config.fetch(:smtp_server)) do |smtp|
-        smtp.send_message(
-          message,
-          smtp_envelope_from,
-          smtp_envelope_to,
-        )
+      message.prepend(fields.map { |name, value| "#{name}: #{value}\r\n" }.join)
+      Net::SMTP.start(settings.smtp_server) do |smtp|
+        smtp.send_message(message, bounce_to, recipient)
       end
     end
 
     def validate_local_part!(local_part)
-      unless /\A[a-zA-Z0-9-]+\z/ =~ local_part
-        fail 'Invalid local-part'
-      end
+      raise ArgumentError, 'Invalid local-part' unless local_part.is_a?(String) && /\A[a-zA-Z0-9-]+\z/.match?(local_part)
       local_part
     end
 

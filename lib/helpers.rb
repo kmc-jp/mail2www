@@ -15,27 +15,6 @@ module Mail2www
     alias_method :escape_path, :escape_path
     alias_method :q, :build_query
 
-    def how_old(t)
-      diff = Time.now - t
-
-      m = 60
-      h = 60 * m
-      d = 24 * h
-
-      case diff
-      when 0...m
-        format '%ds', diff
-      when m...h
-        format '%dm', diff / m
-      when h...d
-        format '%dh', diff / h
-      when d..d * 30
-        format '%dd', diff / d
-      else
-        format '%dM', diff / (d * 30) # Do we need more precise way?
-      end
-    end
-
     def append_slash(url)
       if url.include?('?')
         path, q, query = url.rpartition('?')

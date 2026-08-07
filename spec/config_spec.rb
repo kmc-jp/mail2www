@@ -1,55 +1,24 @@
-require 'rubygems'
 require 'bundler/setup'
 
-require 'spec_helper'
-require_relative '../lib/config.example.rb'
+require_relative 'spec_helper'
+require_relative '../lib/app'
 
-module Mail2www
-  describe Config do
-    it "#mail_dir" do
-      expect(subject[:mail_dir]).not_to be_nil
-      expect(subject[:mail_dir]).to be_an_instance_of(String)
-    end
+describe 'config/mail2www.yml' do
+  subject(:settings) do
+    Class.new(Mail2www::App).tap do |app|
+      app.config_file 'config/mail2www.example.yml'
+    end.settings
+  end
 
-    it "#folders" do
-      expect(subject[:folders]).not_to be_nil
-      expect(subject[:folders]).to be_an_instance_of(Array)
-    end
+  it 'loads the mail archive settings through Sinatra::ConfigFile' do
+    expect(settings.mail_dir).to be_a(String)
+    expect(settings.folders).to be_an(Array)
+    expect(settings.title).to be_a(String)
+  end
 
-    it "#title" do
-      expect(subject[:title]).not_to be_nil
-      expect(subject[:title]).to be_an_instance_of(String)
-    end
-
-    it "#mails_per_page" do
-      expect(subject[:mails_per_page]).not_to be_nil
-    end
-
-    context "when the constructor receives a hash" do
-      let (:hash) { {
-          mail_dir: "new mail dir",
-          folders: %w(folder1, folder2),
-          title: "new title",
-          mails_per_page: 50
-        } }
-
-      subject { Mail2www::Config.new(hash) }
-
-      it "#mail_dir" do
-        expect(subject[:mail_dir]).to eq(hash[:mail_dir])
-      end
-
-      it "#folders" do
-        expect(subject[:folders]).to eq(hash[:folders])
-      end
-
-      it "#title" do
-        expect(subject[:title]).to eq(hash[:title])
-      end
-
-      it "#mails_per_page" do
-        expect(subject[:mails_per_page]).to eq(hash[:mails_per_page])
-      end
-    end
+  it 'loads the SMTP settings through Sinatra::ConfigFile' do
+    expect(settings.smtp_server).to be_a(String)
+    expect(settings.mailname).to be_a(String)
+    expect(settings.bounce_to).to be_a(String)
   end
 end
