@@ -1,5 +1,15 @@
 import * as z from 'zod/mini'
 
+const jsonResponse = z.pipe(
+  z.instanceof(Response),
+  z.transform(response => response.json() as unknown),
+)
+
+const emptyResponse = z.pipe(
+  z.instanceof(Response),
+  z.transform(() => undefined),
+)
+
 const datetimeSchema = z.codec(z.iso.datetime({ offset: true }), z.date(), {
   decode: value => new Date(value),
   encode: value => value.toISOString(),
@@ -59,25 +69,34 @@ export type MessageList = z.infer<typeof messageListSchema>
 export type Mailbox = z.infer<typeof mailboxSchema>
 export type Message = z.infer<typeof messageSchema>
 
-async function request(path: string, init?: RequestInit): Promise<unknown> {
+async function request<T extends z.ZodMiniType>(path: string, schema: T, init?: RequestInit): Promise<z.output<T>> {
   const response = await fetch(`/api${path}`, init)
   if (!response.ok) {
     const body = await response.json().catch(() => null) as { error?: string } | null
     throw new Error(body?.error ?? `Request failed (${response.status})`)
   }
-  return response.status === 204 ? undefined : response.json()
+  return schema.parseAsync(response)
 }
 
 export const api = {
-  config: async () => configSchema.parse(await request('/config')),
+  config: async () => request('/config', z.pipe(jsonResponse, configSchema)),
   messages: async (folder: string, page: number, perPage: number) =>
-    messageListSchema.parse(await request(`/folders/${encodeURIComponent(folder)}/messages?page=${page}&per_page=${perPage}`)),
+    request(
+      `/folders/${encodeURIComponent(folder)}/messages?page=${page}&per_page=${perPage}`,
+      z.pipe(jsonResponse, messageListSchema),
+    ),
   message: async (folder: string, number: string) =>
-    messageSchema.parse(await request(`/folders/${encodeURIComponent(folder)}/messages/${encodeURIComponent(number)}`)),
+    request(
+      `/folders/${encodeURIComponent(folder)}/messages/${encodeURIComponent(number)}`,
+      z.pipe(jsonResponse, messageSchema),
+    ),
   source: async (folder: string, number: string) =>
-    sourceSchema.parse(await request(`/folders/${encodeURIComponent(folder)}/messages/${encodeURIComponent(number)}/source`)),
+    request(
+      `/folders/${encodeURIComponent(folder)}/messages/${encodeURIComponent(number)}/source`,
+      z.pipe(jsonResponse, sourceSchema),
+    ),
   forward: async (folder: string, number: string, to: string) =>
-    request(`/folders/${encodeURIComponent(folder)}/messages/${encodeURIComponent(number)}/forward`, {
+    request(`/folders/${encodeURIComponent(folder)}/messages/${encodeURIComponent(number)}/forward`, emptyResponse, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ to }),
