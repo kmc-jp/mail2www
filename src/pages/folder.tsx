@@ -1,5 +1,6 @@
 import { queryOptions, useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
+import { Fragment } from 'react'
 import { api } from '../api'
 import { formatAddresses } from '../addresses'
 import { Loading, PageError } from '../components/Status'
@@ -15,9 +16,9 @@ export function FolderPage({ folder, page, perPage }: { folder: string, page: nu
     <div className="pages main"><table><tbody><tr><td>
       <Pagination folder={folder} page={data.page} pages={data.pages} perPage={data.per_page} />
     </td></tr></tbody></table></div>
-    <div className="main per-page">per-page:{' '}
-      {[10, 20, 50, 100].map((amount) => <Link key={amount} to="/$folder" params={{ folder }} search={{ page: 0, perPage: amount }}>{amount}{' '}</Link>)}
-    </div>
+    <div className="main per-page">per-page:
+      {[10, 20, 50, 100].map((amount) => <Fragment key={amount}>{' '}<Link to="/$folder" params={{ folder }} search={{ page: 0, perPage: amount }}>{amount}</Link></Fragment>)}
+    </div >
     <div className="autopagerize_page_element"><div className="main"><table id="mail_list">
       <thead><tr><th>time</th><th>no</th><th>from</th><th>subject</th></tr></thead>
       <tbody>{data.messages.map((message) => <tr key={message.number}>
