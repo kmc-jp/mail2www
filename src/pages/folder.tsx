@@ -2,7 +2,7 @@ import { queryOptions, useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { Fragment } from 'react'
 import { api } from '../api'
-import { formatAddresses } from '../addresses'
+import { Mailboxes } from '../components/Mailbox'
 import { Loading, PageError } from '../components/Status'
 import { Pagination } from '../components/Pagination'
 import { formatRelativeAge } from '../date'
@@ -24,7 +24,7 @@ export function FolderPage({ folder, page, perPage }: { folder: string, page: nu
       <tbody>{data.messages.map((message) => <tr key={message.number}>
         <td className="time">{message.date ? `${message.date.toLocaleDateString(undefined, { timeZone: 'Asia/Tokyo' })} (${formatRelativeAge(message.date)})` : ''}</td>
         <td className="num"><Link to="/$folder/$number" params={{ folder, number: message.number }}>{message.number}</Link></td>
-        <td className="from">{formatAddresses(message.from)}</td>
+        <td className="from"><Mailboxes mailboxes={message.from} /></td>
         <td className="subj"><Link to="/$folder/$number" params={{ folder, number: message.number }}>{message.subject}</Link></td>
       </tr>)}</tbody>
     </table></div></div>

@@ -3,20 +3,83 @@
 require 'rubygems'
 require 'bundler/setup'
 require 'kconv'
+require 'public_suffix'
+require 'simpleidn'
 require 'sinatra/base'
+require 'unicode/scripts'
+require_relative 'unicode_confusables'
 
 module Mail2www
   module Helpers
+    DOMAIN_LABEL = '[\p{L}\p{N}](?:[\p{L}\p{N}\p{M}-]{0,61}[\p{L}\p{N}\p{M}])?'
+    DOMAIN_PATTERN = /#{DOMAIN_LABEL}(?:\.#{DOMAIN_LABEL})*\.\p{L}[\p{L}\p{M}]{1,62}/i
+    IDN_DOT_SEPARATORS = "\uFF0E\u3002\uFF61"
+
     def get_addresses(mail, field_name)
       field = mail[field_name]
       return [] unless field&.element
 
       field.element.addresses.map do |mailbox|
-        {
-          name: mailbox.display_name&.encode('utf-8')&.scrub,
-          address: mailbox.address.encode('utf-8').scrub
-        }
+        name = mailbox.display_name&.encode('utf-8')&.scrub
+        address = mailbox.address.encode('utf-8').scrub
+        suspicious_name, suspicious_address = mailbox_suspicion(name, address)
+        address = resolve_mailbox_address(address, suspicious_address)
+        { name:, address:, suspicious_name:, suspicious_address: }
       end
+    end
+
+    def resolve_mailbox_address(address, suspicious_address)
+      local, separator, domain = address.rpartition('@')
+      return address if separator.empty?
+
+      decoded_domain = SimpleIDN.to_unicode(domain.delete_suffix('.'))
+      resolved_domain = suspicious_address ? SimpleIDN.to_ascii(decoded_domain) : decoded_domain
+      "#{local}@#{resolved_domain}"
+    rescue SimpleIDN::ConversionError
+      address
+    end
+
+    def mailbox_suspicion(name, address)
+      domain = address.rpartition('@').last.downcase.delete_suffix('.')
+      return [suspicious_name_syntax?(name), false] if domain.empty?
+
+      decoded_domain = SimpleIDN.to_unicode(domain)
+      suspicious_address = decoded_domain.split('.').any? { |label| Unicode::Scripts.mixed?(label) }
+      [suspicious_mailbox_name_for_domain?(name, decoded_domain, suspicious_address), suspicious_address]
+    rescue SimpleIDN::ConversionError
+      [suspicious_name_syntax?(name) || domain_like_name?(name), true]
+    end
+
+    def suspicious_mailbox_name_for_domain?(name, domain, suspicious_address)
+      return false unless name
+      return true if /[@<>]/.match?(name)
+
+      skeleton_domains = domain_skeletons(name)
+      return false if skeleton_domains.empty?
+      return true if suspicious_address
+
+      address_registrable_domain = registrable_domain(domain)
+      name_domains = name.downcase.scan(DOMAIN_PATTERN)
+      name_domains.empty? || name_domains.any? do |candidate|
+        registrable_domain(candidate) != address_registrable_domain
+      end
+    end
+
+    def suspicious_name_syntax?(name)
+      !!(name && /[@<>]/.match?(name))
+    end
+
+    def domain_like_name?(name)
+      !!(name && !domain_skeletons(name).empty?)
+    end
+
+    def domain_skeletons(name)
+      detectable_name = name.downcase.tr(IDN_DOT_SEPARATORS, '.')
+      UnicodeConfusables.default.skeleton(detectable_name).scan(DOMAIN_PATTERN)
+    end
+
+    def registrable_domain(domain)
+      PublicSuffix.domain(SimpleIDN.to_ascii(domain))
     end
 
     def get_subject(mail)

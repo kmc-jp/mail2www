@@ -1,8 +1,8 @@
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { api } from '../api'
-import { formatAddresses } from '../addresses'
 import { useAppConfig } from '../components/AppConfig'
+import { Mailboxes } from '../components/Mailbox'
 import { MessageBody } from '../components/MessageBody'
 import { Loading, PageError } from '../components/Status'
 
@@ -17,10 +17,10 @@ export function MessagePage({ folder, number }: { folder: string, number: string
   const remoteUser = config.remote_user
   const dangerous = mail.spam || Boolean(mail.virus)
   const confirmAttachmentRisk = () => !dangerous || window.confirm('この添付ファイルは危険な可能性があります。本当にダウンロードしますか？')
-  const headers = [
-    ['From', formatAddresses(mail.headers.from)],
-    ['To', formatAddresses(mail.headers.to)],
-    ['Cc', formatAddresses(mail.headers.cc)],
+  const headers: [string, React.ReactNode][] = [
+    ['From', <Mailboxes key="from" mailboxes={mail.headers.from} />],
+    ['To', <Mailboxes key="to" mailboxes={mail.headers.to} />],
+    ['Cc', <Mailboxes key="cc" mailboxes={mail.headers.cc} />],
     ['Subject', mail.headers.subject],
     ['Date', mail.headers.date ? mail.headers.date.toLocaleString(undefined, { timeZone: 'Asia/Tokyo' }) : '(none)'],
   ]

@@ -24,6 +24,8 @@ const configSchema = z.object({
 const mailboxSchema = z.object({
   name: z.nullable(z.string()),
   address: z.string(),
+  suspicious_name: z.boolean(),
+  suspicious_address: z.boolean(),
 })
 
 const messageSummarySchema = z.object({

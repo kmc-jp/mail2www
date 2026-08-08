@@ -45,7 +45,7 @@ describe Mail2www::App do
     expect(body).to include('page' => 0, 'pages' => 1, 'total' => 7)
     expect(body.fetch('messages').first).to include(
       'number' => '7',
-      'from' => [{ 'name' => 'Sender', 'address' => 'sender@example.test' }],
+      'from' => [{ 'name' => 'Sender', 'address' => 'sender@example.test', 'suspicious_name' => false, 'suspicious_address' => false }],
       'subject' => 'Virus-flagged message with attachment',
       'date' => '2026-01-07T00:00:00+00:00'
     )
@@ -68,8 +68,8 @@ describe Mail2www::App do
       'html' => nil
     )
     expect(body.fetch('headers')).to include(
-      'from' => [{ 'name' => 'Sender', 'address' => 'sender@example.test' }],
-      'to' => [{ 'name' => nil, 'address' => 'archive@example.test' }],
+      'from' => [{ 'name' => 'Sender', 'address' => 'sender@example.test', 'suspicious_name' => false, 'suspicious_address' => false }],
+      'to' => [{ 'name' => nil, 'address' => 'archive@example.test', 'suspicious_name' => false, 'suspicious_address' => false }],
       'cc' => [],
       'date' => '2026-01-01T00:00:00+00:00'
     )
