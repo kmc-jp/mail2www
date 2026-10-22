@@ -1,10 +1,12 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import react, { reactCompilerPreset } from '@vitejs/plugin-react'
+import babel from '@rolldown/plugin-babel'
 
 export default defineConfig({
   plugins: [
-    react({
-      babel: { plugins: ['babel-plugin-react-compiler'] },
+    react(),
+    babel({
+      presets: [reactCompilerPreset()],
     }),
   ],
   server: {
